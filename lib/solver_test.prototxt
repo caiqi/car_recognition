@@ -1,0 +1,25 @@
+# please cite:
+# @article{SqueezeNet,
+#     Author = {Forrest N. Iandola and Matthew W. Moskewicz and Khalid Ashraf and Song Han and William J. Dally and Kurt Keutzer},
+#     Title = {SqueezeNet: AlexNet-level accuracy with 50x fewer parameters and $<$1MB model size},
+#     Journal = {arXiv:1602.07360},
+#     Year = {2016}
+# }
+net: "./lib/test.prototxt"
+test_iter: 102 
+test_interval: 1
+base_lr: 0
+display: 40
+max_iter: 0 #15105 #50 epoch
+iter_size: 1 
+lr_policy: "step"
+stepsize: 4100 #6042 #
+gamma: 0.1
+momentum: 0.9
+weight_decay: 0.0002
+snapshot: 4100 #6042 # 
+snapshot_prefix: "test"
+solver_mode: GPU
+random_seed: 42
+test_initialization: false
+average_loss: 20

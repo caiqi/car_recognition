@@ -1,0 +1,2714 @@
+I0502 21:03:35.101763 11564 caffe.cpp:212] Use CPU.
+I0502 21:03:35.103761 11564 solver.cpp:44] Initializing solver from parameters: 
+test_iter: 98
+test_interval: 205
+base_lr: 0.001
+display: 2
+max_iter: 10250
+lr_policy: "step"
+gamma: 0.1
+momentum: 0.9
+weight_decay: 0.0002
+stepsize: 4100
+snapshot: 4100
+snapshot_prefix: "./results/finetune"
+solver_mode: CPU
+random_seed: 42
+net: "./lib/finetune.prototxt"
+train_state {
+  level: 0
+  stage: ""
+}
+test_initialization: false
+average_loss: 20
+iter_size: 1
+I0502 21:03:35.104759 11564 solver.cpp:87] Creating training net from net file: ./lib/finetune.prototxt
+I0502 21:03:35.105760 11564 net.cpp:294] The NetState phase (0) differed from the phase (1) specified by a rule in layer data
+I0502 21:03:35.106760 11564 net.cpp:294] The NetState phase (0) differed from the phase (1) specified by a rule in layer accuracy
+I0502 21:03:35.106760 11564 net.cpp:294] The NetState phase (0) differed from the phase (1) specified by a rule in layer accuracy_top5
+I0502 21:03:35.106760 11564 net.cpp:51] Initializing net from parameters: 
+state {
+  phase: TRAIN
+  level: 0
+  stage: ""
+}
+layer {
+  name: "data"
+  type: "ImageData"
+  top: "data"
+  top: "label"
+  include {
+    phase: TRAIN
+  }
+  transform_param {
+    mean_value: 104
+    mean_value: 117
+    mean_value: 123
+  }
+  image_data_param {
+    source: "./dataset_namelist/train.txt"
+    batch_size: 2
+    crop_size: 227
+    mirror: true
+    shuffle: true
+    new_height: 256
+    new_width: 256
+  }
+}
+layer {
+  name: "conv1"
+  type: "Convolution"
+  bottom: "data"
+  top: "conv1"
+  convolution_param {
+    num_output: 64
+    kernel_size: 3
+    stride: 2
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "relu_conv1"
+  type: "ReLU"
+  bottom: "conv1"
+  top: "conv1"
+}
+layer {
+  name: "pool1"
+  type: "Pooling"
+  bottom: "conv1"
+  top: "pool1"
+  pooling_param {
+    pool: MAX
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
+  name: "fire2/squeeze1x1"
+  type: "Convolution"
+  bottom: "pool1"
+  top: "fire2/squeeze1x1"
+  convolution_param {
+    num_output: 16
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire2/relu_squeeze1x1"
+  type: "ReLU"
+  bottom: "fire2/squeeze1x1"
+  top: "fire2/squeeze1x1"
+}
+layer {
+  name: "fire2/expand1x1"
+  type: "Convolution"
+  bottom: "fire2/squeeze1x1"
+  top: "fire2/expand1x1"
+  convolution_param {
+    num_output: 64
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire2/relu_expand1x1"
+  type: "ReLU"
+  bottom: "fire2/expand1x1"
+  top: "fire2/expand1x1"
+}
+layer {
+  name: "fire2/expand3x3"
+  type: "Convolution"
+  bottom: "fire2/squeeze1x1"
+  top: "fire2/expand3x3"
+  convolution_param {
+    num_output: 64
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire2/relu_expand3x3"
+  type: "ReLU"
+  bottom: "fire2/expand3x3"
+  top: "fire2/expand3x3"
+}
+layer {
+  name: "fire2/concat"
+  type: "Concat"
+  bottom: "fire2/expand1x1"
+  bottom: "fire2/expand3x3"
+  top: "fire2/concat"
+}
+layer {
+  name: "fire3/squeeze1x1"
+  type: "Convolution"
+  bottom: "fire2/concat"
+  top: "fire3/squeeze1x1"
+  convolution_param {
+    num_output: 16
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire3/relu_squeeze1x1"
+  type: "ReLU"
+  bottom: "fire3/squeeze1x1"
+  top: "fire3/squeeze1x1"
+}
+layer {
+  name: "fire3/expand1x1"
+  type: "Convolution"
+  bottom: "fire3/squeeze1x1"
+  top: "fire3/expand1x1"
+  convolution_param {
+    num_output: 64
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire3/relu_expand1x1"
+  type: "ReLU"
+  bottom: "fire3/expand1x1"
+  top: "fire3/expand1x1"
+}
+layer {
+  name: "fire3/expand3x3"
+  type: "Convolution"
+  bottom: "fire3/squeeze1x1"
+  top: "fire3/expand3x3"
+  convolution_param {
+    num_output: 64
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire3/relu_expand3x3"
+  type: "ReLU"
+  bottom: "fire3/expand3x3"
+  top: "fire3/expand3x3"
+}
+layer {
+  name: "fire3/concat"
+  type: "Concat"
+  bottom: "fire3/expand1x1"
+  bottom: "fire3/expand3x3"
+  top: "fire3/concat"
+}
+layer {
+  name: "pool3"
+  type: "Pooling"
+  bottom: "fire3/concat"
+  top: "pool3"
+  pooling_param {
+    pool: MAX
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
+  name: "fire4/squeeze1x1"
+  type: "Convolution"
+  bottom: "pool3"
+  top: "fire4/squeeze1x1"
+  convolution_param {
+    num_output: 32
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire4/relu_squeeze1x1"
+  type: "ReLU"
+  bottom: "fire4/squeeze1x1"
+  top: "fire4/squeeze1x1"
+}
+layer {
+  name: "fire4/expand1x1"
+  type: "Convolution"
+  bottom: "fire4/squeeze1x1"
+  top: "fire4/expand1x1"
+  convolution_param {
+    num_output: 128
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire4/relu_expand1x1"
+  type: "ReLU"
+  bottom: "fire4/expand1x1"
+  top: "fire4/expand1x1"
+}
+layer {
+  name: "fire4/expand3x3"
+  type: "Convolution"
+  bottom: "fire4/squeeze1x1"
+  top: "fire4/expand3x3"
+  convolution_param {
+    num_output: 128
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire4/relu_expand3x3"
+  type: "ReLU"
+  bottom: "fire4/expand3x3"
+  top: "fire4/expand3x3"
+}
+layer {
+  name: "fire4/concat"
+  type: "Concat"
+  bottom: "fire4/expand1x1"
+  bottom: "fire4/expand3x3"
+  top: "fire4/concat"
+}
+layer {
+  name: "fire5/squeeze1x1"
+  type: "Convolution"
+  bottom: "fire4/concat"
+  top: "fire5/squeeze1x1"
+  convolution_param {
+    num_output: 32
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire5/relu_squeeze1x1"
+  type: "ReLU"
+  bottom: "fire5/squeeze1x1"
+  top: "fire5/squeeze1x1"
+}
+layer {
+  name: "fire5/expand1x1"
+  type: "Convolution"
+  bottom: "fire5/squeeze1x1"
+  top: "fire5/expand1x1"
+  convolution_param {
+    num_output: 128
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire5/relu_expand1x1"
+  type: "ReLU"
+  bottom: "fire5/expand1x1"
+  top: "fire5/expand1x1"
+}
+layer {
+  name: "fire5/expand3x3"
+  type: "Convolution"
+  bottom: "fire5/squeeze1x1"
+  top: "fire5/expand3x3"
+  convolution_param {
+    num_output: 128
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire5/relu_expand3x3"
+  type: "ReLU"
+  bottom: "fire5/expand3x3"
+  top: "fire5/expand3x3"
+}
+layer {
+  name: "fire5/concat"
+  type: "Concat"
+  bottom: "fire5/expand1x1"
+  bottom: "fire5/expand3x3"
+  top: "fire5/concat"
+}
+layer {
+  name: "pool5"
+  type: "Pooling"
+  bottom: "fire5/concat"
+  top: "pool5"
+  pooling_param {
+    pool: MAX
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
+  name: "fire6/squeeze1x1"
+  type: "Convolution"
+  bottom: "pool5"
+  top: "fire6/squeeze1x1"
+  convolution_param {
+    num_output: 48
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire6/relu_squeeze1x1"
+  type: "ReLU"
+  bottom: "fire6/squeeze1x1"
+  top: "fire6/squeeze1x1"
+}
+layer {
+  name: "fire6/expand1x1"
+  type: "Convolution"
+  bottom: "fire6/squeeze1x1"
+  top: "fire6/expand1x1"
+  convolution_param {
+    num_output: 192
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire6/relu_expand1x1"
+  type: "ReLU"
+  bottom: "fire6/expand1x1"
+  top: "fire6/expand1x1"
+}
+layer {
+  name: "fire6/expand3x3"
+  type: "Convolution"
+  bottom: "fire6/squeeze1x1"
+  top: "fire6/expand3x3"
+  convolution_param {
+    num_output: 192
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire6/relu_expand3x3"
+  type: "ReLU"
+  bottom: "fire6/expand3x3"
+  top: "fire6/expand3x3"
+}
+layer {
+  name: "fire6/concat"
+  type: "Concat"
+  bottom: "fire6/expand1x1"
+  bottom: "fire6/expand3x3"
+  top: "fire6/concat"
+}
+layer {
+  name: "fire7/squeeze1x1"
+  type: "Convolution"
+  bottom: "fire6/concat"
+  top: "fire7/squeeze1x1"
+  convolution_param {
+    num_output: 48
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire7/relu_squeeze1x1"
+  type: "ReLU"
+  bottom: "fire7/squeeze1x1"
+  top: "fire7/squeeze1x1"
+}
+layer {
+  name: "fire7/expand1x1"
+  type: "Convolution"
+  bottom: "fire7/squeeze1x1"
+  top: "fire7/expand1x1"
+  convolution_param {
+    num_output: 192
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire7/relu_expand1x1"
+  type: "ReLU"
+  bottom: "fire7/expand1x1"
+  top: "fire7/expand1x1"
+}
+layer {
+  name: "fire7/expand3x3"
+  type: "Convolution"
+  bottom: "fire7/squeeze1x1"
+  top: "fire7/expand3x3"
+  convolution_param {
+    num_output: 192
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire7/relu_expand3x3"
+  type: "ReLU"
+  bottom: "fire7/expand3x3"
+  top: "fire7/expand3x3"
+}
+layer {
+  name: "fire7/concat"
+  type: "Concat"
+  bottom: "fire7/expand1x1"
+  bottom: "fire7/expand3x3"
+  top: "fire7/concat"
+}
+layer {
+  name: "fire8/squeeze1x1"
+  type: "Convolution"
+  bottom: "fire7/concat"
+  top: "fire8/squeeze1x1"
+  convolution_param {
+    num_output: 64
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire8/relu_squeeze1x1"
+  type: "ReLU"
+  bottom: "fire8/squeeze1x1"
+  top: "fire8/squeeze1x1"
+}
+layer {
+  name: "fire8/expand1x1"
+  type: "Convolution"
+  bottom: "fire8/squeeze1x1"
+  top: "fire8/expand1x1"
+  convolution_param {
+    num_output: 256
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire8/relu_expand1x1"
+  type: "ReLU"
+  bottom: "fire8/expand1x1"
+  top: "fire8/expand1x1"
+}
+layer {
+  name: "fire8/expand3x3"
+  type: "Convolution"
+  bottom: "fire8/squeeze1x1"
+  top: "fire8/expand3x3"
+  convolution_param {
+    num_output: 256
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire8/relu_expand3x3"
+  type: "ReLU"
+  bottom: "fire8/expand3x3"
+  top: "fire8/expand3x3"
+}
+layer {
+  name: "fire8/concat"
+  type: "Concat"
+  bottom: "fire8/expand1x1"
+  bottom: "fire8/expand3x3"
+  top: "fire8/concat"
+}
+layer {
+  name: "fire9/squeeze1x1"
+  type: "Convolution"
+  bottom: "fire8/concat"
+  top: "fire9/squeeze1x1"
+  convolution_param {
+    num_output: 64
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire9/relu_squeeze1x1"
+  type: "ReLU"
+  bottom: "fire9/squeeze1x1"
+  top: "fire9/squeeze1x1"
+}
+layer {
+  name: "fire9/expand1x1"
+  type: "Convolution"
+  bottom: "fire9/squeeze1x1"
+  top: "fire9/expand1x1"
+  convolution_param {
+    num_output: 256
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire9/relu_expand1x1"
+  type: "ReLU"
+  bottom: "fire9/expand1x1"
+  top: "fire9/expand1x1"
+}
+layer {
+  name: "fire9/expand3x3"
+  type: "Convolution"
+  bottom: "fire9/squeeze1x1"
+  top: "fire9/expand3x3"
+  convolution_param {
+    num_output: 256
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire9/relu_expand3x3"
+  type: "ReLU"
+  bottom: "fire9/expand3x3"
+  top: "fire9/expand3x3"
+}
+layer {
+  name: "fire9/concat"
+  type: "Concat"
+  bottom: "fire9/expand1x1"
+  bottom: "fire9/expand3x3"
+  top: "fire9/concat"
+}
+layer {
+  name: "drop9"
+  type: "Dropout"
+  bottom: "fire9/concat"
+  top: "fire9/concat"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+layer {
+  name: "conv10_new"
+  type: "Convolution"
+  bottom: "fire9/concat"
+  top: "conv10_new"
+  convolution_param {
+    num_output: 196
+    kernel_size: 1
+    weight_filler {
+      type: "gaussian"
+      mean: 0
+      std: 0.01
+    }
+  }
+}
+layer {
+  name: "relu_conv10"
+  type: "ReLU"
+  bottom: "conv10_new"
+  top: "conv10_new"
+}
+layer {
+  name: "pool10"
+  type: "Pooling"
+  bottom: "conv10_new"
+  top: "pool10"
+  pooling_param {
+    pool: AVE
+    global_pooling: true
+  }
+}
+layer {
+  name: "loss"
+  type: "SoftmaxWithLoss"
+  bottom: "pool10"
+  bottom: "label"
+  top: "loss"
+}
+I0502 21:03:35.107759 11564 layer_factory.cpp:58] Creating layer data
+I0502 21:03:35.107759 11564 net.cpp:84] Creating Layer data
+I0502 21:03:35.107759 11564 net.cpp:380] data -> data
+I0502 21:03:35.107759 11564 net.cpp:380] data -> label
+I0502 21:03:35.107759 11564 image_data_layer.cpp:38] Opening file ./dataset_namelist/train.txt
+I0502 21:03:35.297639 11564 image_data_layer.cpp:53] Shuffling data
+I0502 21:03:35.300640 11564 image_data_layer.cpp:63] A total of 71615 images.
+I0502 21:03:35.309633 11564 image_data_layer.cpp:90] output data size: 2,3,256,256
+I0502 21:03:35.311633 11564 net.cpp:122] Setting up data
+I0502 21:03:35.311633 11564 net.cpp:129] Top shape: 2 3 256 256 (393216)
+I0502 21:03:35.311633 11564 net.cpp:129] Top shape: 2 (2)
+I0502 21:03:35.311633 11564 net.cpp:137] Memory required for data: 1572872
+I0502 21:03:35.311633 11564 layer_factory.cpp:58] Creating layer conv1
+I0502 21:03:35.312633 11564 net.cpp:84] Creating Layer conv1
+I0502 21:03:35.312633 11564 net.cpp:406] conv1 <- data
+I0502 21:03:35.312633 11564 net.cpp:380] conv1 -> conv1
+I0502 21:03:35.312633 11564 net.cpp:122] Setting up conv1
+I0502 21:03:35.312633 11564 net.cpp:129] Top shape: 2 64 127 127 (2064512)
+I0502 21:03:35.312633 11564 net.cpp:137] Memory required for data: 9830920
+I0502 21:03:35.312633 11564 layer_factory.cpp:58] Creating layer relu_conv1
+I0502 21:03:35.312633 11564 net.cpp:84] Creating Layer relu_conv1
+I0502 21:03:35.312633 11564 net.cpp:406] relu_conv1 <- conv1
+I0502 21:03:35.312633 11564 net.cpp:367] relu_conv1 -> conv1 (in-place)
+I0502 21:03:35.312633 11564 net.cpp:122] Setting up relu_conv1
+I0502 21:03:35.312633 11564 net.cpp:129] Top shape: 2 64 127 127 (2064512)
+I0502 21:03:35.312633 11564 net.cpp:137] Memory required for data: 18088968
+I0502 21:03:35.312633 11564 layer_factory.cpp:58] Creating layer pool1
+I0502 21:03:35.312633 11564 net.cpp:84] Creating Layer pool1
+I0502 21:03:35.312633 11564 net.cpp:406] pool1 <- conv1
+I0502 21:03:35.312633 11564 net.cpp:380] pool1 -> pool1
+I0502 21:03:35.312633 11564 net.cpp:122] Setting up pool1
+I0502 21:03:35.312633 11564 net.cpp:129] Top shape: 2 64 63 63 (508032)
+I0502 21:03:35.312633 11564 net.cpp:137] Memory required for data: 20121096
+I0502 21:03:35.312633 11564 layer_factory.cpp:58] Creating layer fire2/squeeze1x1
+I0502 21:03:35.312633 11564 net.cpp:84] Creating Layer fire2/squeeze1x1
+I0502 21:03:35.312633 11564 net.cpp:406] fire2/squeeze1x1 <- pool1
+I0502 21:03:35.312633 11564 net.cpp:380] fire2/squeeze1x1 -> fire2/squeeze1x1
+I0502 21:03:35.313633 11564 net.cpp:122] Setting up fire2/squeeze1x1
+I0502 21:03:35.313633 11564 net.cpp:129] Top shape: 2 16 63 63 (127008)
+I0502 21:03:35.313633 11564 net.cpp:137] Memory required for data: 20629128
+I0502 21:03:35.313633 11564 layer_factory.cpp:58] Creating layer fire2/relu_squeeze1x1
+I0502 21:03:35.313633 11564 net.cpp:84] Creating Layer fire2/relu_squeeze1x1
+I0502 21:03:35.313633 11564 net.cpp:406] fire2/relu_squeeze1x1 <- fire2/squeeze1x1
+I0502 21:03:35.313633 11564 net.cpp:367] fire2/relu_squeeze1x1 -> fire2/squeeze1x1 (in-place)
+I0502 21:03:35.313633 11564 net.cpp:122] Setting up fire2/relu_squeeze1x1
+I0502 21:03:35.313633 11564 net.cpp:129] Top shape: 2 16 63 63 (127008)
+I0502 21:03:35.313633 11564 net.cpp:137] Memory required for data: 21137160
+I0502 21:03:35.313633 11564 layer_factory.cpp:58] Creating layer fire2/squeeze1x1_fire2/relu_squeeze1x1_0_split
+I0502 21:03:35.313633 11564 net.cpp:84] Creating Layer fire2/squeeze1x1_fire2/relu_squeeze1x1_0_split
+I0502 21:03:35.313633 11564 net.cpp:406] fire2/squeeze1x1_fire2/relu_squeeze1x1_0_split <- fire2/squeeze1x1
+I0502 21:03:35.313633 11564 net.cpp:380] fire2/squeeze1x1_fire2/relu_squeeze1x1_0_split -> fire2/squeeze1x1_fire2/relu_squeeze1x1_0_split_0
+I0502 21:03:35.313633 11564 net.cpp:380] fire2/squeeze1x1_fire2/relu_squeeze1x1_0_split -> fire2/squeeze1x1_fire2/relu_squeeze1x1_0_split_1
+I0502 21:03:35.313633 11564 net.cpp:122] Setting up fire2/squeeze1x1_fire2/relu_squeeze1x1_0_split
+I0502 21:03:35.313633 11564 net.cpp:129] Top shape: 2 16 63 63 (127008)
+I0502 21:03:35.313633 11564 net.cpp:129] Top shape: 2 16 63 63 (127008)
+I0502 21:03:35.313633 11564 net.cpp:137] Memory required for data: 22153224
+I0502 21:03:35.313633 11564 layer_factory.cpp:58] Creating layer fire2/expand1x1
+I0502 21:03:35.313633 11564 net.cpp:84] Creating Layer fire2/expand1x1
+I0502 21:03:35.313633 11564 net.cpp:406] fire2/expand1x1 <- fire2/squeeze1x1_fire2/relu_squeeze1x1_0_split_0
+I0502 21:03:35.313633 11564 net.cpp:380] fire2/expand1x1 -> fire2/expand1x1
+I0502 21:03:35.313633 11564 net.cpp:122] Setting up fire2/expand1x1
+I0502 21:03:35.313633 11564 net.cpp:129] Top shape: 2 64 63 63 (508032)
+I0502 21:03:35.313633 11564 net.cpp:137] Memory required for data: 24185352
+I0502 21:03:35.314630 11564 layer_factory.cpp:58] Creating layer fire2/relu_expand1x1
+I0502 21:03:35.314630 11564 net.cpp:84] Creating Layer fire2/relu_expand1x1
+I0502 21:03:35.314630 11564 net.cpp:406] fire2/relu_expand1x1 <- fire2/expand1x1
+I0502 21:03:35.314630 11564 net.cpp:367] fire2/relu_expand1x1 -> fire2/expand1x1 (in-place)
+I0502 21:03:35.314630 11564 net.cpp:122] Setting up fire2/relu_expand1x1
+I0502 21:03:35.314630 11564 net.cpp:129] Top shape: 2 64 63 63 (508032)
+I0502 21:03:35.314630 11564 net.cpp:137] Memory required for data: 26217480
+I0502 21:03:35.314630 11564 layer_factory.cpp:58] Creating layer fire2/expand3x3
+I0502 21:03:35.314630 11564 net.cpp:84] Creating Layer fire2/expand3x3
+I0502 21:03:35.314630 11564 net.cpp:406] fire2/expand3x3 <- fire2/squeeze1x1_fire2/relu_squeeze1x1_0_split_1
+I0502 21:03:35.314630 11564 net.cpp:380] fire2/expand3x3 -> fire2/expand3x3
+I0502 21:03:35.314630 11564 net.cpp:122] Setting up fire2/expand3x3
+I0502 21:03:35.314630 11564 net.cpp:129] Top shape: 2 64 63 63 (508032)
+I0502 21:03:35.314630 11564 net.cpp:137] Memory required for data: 28249608
+I0502 21:03:35.314630 11564 layer_factory.cpp:58] Creating layer fire2/relu_expand3x3
+I0502 21:03:35.314630 11564 net.cpp:84] Creating Layer fire2/relu_expand3x3
+I0502 21:03:35.314630 11564 net.cpp:406] fire2/relu_expand3x3 <- fire2/expand3x3
+I0502 21:03:35.314630 11564 net.cpp:367] fire2/relu_expand3x3 -> fire2/expand3x3 (in-place)
+I0502 21:03:35.314630 11564 net.cpp:122] Setting up fire2/relu_expand3x3
+I0502 21:03:35.314630 11564 net.cpp:129] Top shape: 2 64 63 63 (508032)
+I0502 21:03:35.314630 11564 net.cpp:137] Memory required for data: 30281736
+I0502 21:03:35.314630 11564 layer_factory.cpp:58] Creating layer fire2/concat
+I0502 21:03:35.314630 11564 net.cpp:84] Creating Layer fire2/concat
+I0502 21:03:35.314630 11564 net.cpp:406] fire2/concat <- fire2/expand1x1
+I0502 21:03:35.314630 11564 net.cpp:406] fire2/concat <- fire2/expand3x3
+I0502 21:03:35.314630 11564 net.cpp:380] fire2/concat -> fire2/concat
+I0502 21:03:35.314630 11564 net.cpp:122] Setting up fire2/concat
+I0502 21:03:35.314630 11564 net.cpp:129] Top shape: 2 128 63 63 (1016064)
+I0502 21:03:35.315629 11564 net.cpp:137] Memory required for data: 34345992
+I0502 21:03:35.315629 11564 layer_factory.cpp:58] Creating layer fire3/squeeze1x1
+I0502 21:03:35.315629 11564 net.cpp:84] Creating Layer fire3/squeeze1x1
+I0502 21:03:35.315629 11564 net.cpp:406] fire3/squeeze1x1 <- fire2/concat
+I0502 21:03:35.315629 11564 net.cpp:380] fire3/squeeze1x1 -> fire3/squeeze1x1
+I0502 21:03:35.315629 11564 net.cpp:122] Setting up fire3/squeeze1x1
+I0502 21:03:35.315629 11564 net.cpp:129] Top shape: 2 16 63 63 (127008)
+I0502 21:03:35.315629 11564 net.cpp:137] Memory required for data: 34854024
+I0502 21:03:35.315629 11564 layer_factory.cpp:58] Creating layer fire3/relu_squeeze1x1
+I0502 21:03:35.315629 11564 net.cpp:84] Creating Layer fire3/relu_squeeze1x1
+I0502 21:03:35.315629 11564 net.cpp:406] fire3/relu_squeeze1x1 <- fire3/squeeze1x1
+I0502 21:03:35.315629 11564 net.cpp:367] fire3/relu_squeeze1x1 -> fire3/squeeze1x1 (in-place)
+I0502 21:03:35.315629 11564 net.cpp:122] Setting up fire3/relu_squeeze1x1
+I0502 21:03:35.315629 11564 net.cpp:129] Top shape: 2 16 63 63 (127008)
+I0502 21:03:35.315629 11564 net.cpp:137] Memory required for data: 35362056
+I0502 21:03:35.315629 11564 layer_factory.cpp:58] Creating layer fire3/squeeze1x1_fire3/relu_squeeze1x1_0_split
+I0502 21:03:35.315629 11564 net.cpp:84] Creating Layer fire3/squeeze1x1_fire3/relu_squeeze1x1_0_split
+I0502 21:03:35.315629 11564 net.cpp:406] fire3/squeeze1x1_fire3/relu_squeeze1x1_0_split <- fire3/squeeze1x1
+I0502 21:03:35.315629 11564 net.cpp:380] fire3/squeeze1x1_fire3/relu_squeeze1x1_0_split -> fire3/squeeze1x1_fire3/relu_squeeze1x1_0_split_0
+I0502 21:03:35.315629 11564 net.cpp:380] fire3/squeeze1x1_fire3/relu_squeeze1x1_0_split -> fire3/squeeze1x1_fire3/relu_squeeze1x1_0_split_1
+I0502 21:03:35.315629 11564 net.cpp:122] Setting up fire3/squeeze1x1_fire3/relu_squeeze1x1_0_split
+I0502 21:03:35.315629 11564 net.cpp:129] Top shape: 2 16 63 63 (127008)
+I0502 21:03:35.315629 11564 net.cpp:129] Top shape: 2 16 63 63 (127008)
+I0502 21:03:35.315629 11564 net.cpp:137] Memory required for data: 36378120
+I0502 21:03:35.315629 11564 layer_factory.cpp:58] Creating layer fire3/expand1x1
+I0502 21:03:35.315629 11564 net.cpp:84] Creating Layer fire3/expand1x1
+I0502 21:03:35.315629 11564 net.cpp:406] fire3/expand1x1 <- fire3/squeeze1x1_fire3/relu_squeeze1x1_0_split_0
+I0502 21:03:35.315629 11564 net.cpp:380] fire3/expand1x1 -> fire3/expand1x1
+I0502 21:03:35.315629 11564 net.cpp:122] Setting up fire3/expand1x1
+I0502 21:03:35.315629 11564 net.cpp:129] Top shape: 2 64 63 63 (508032)
+I0502 21:03:35.315629 11564 net.cpp:137] Memory required for data: 38410248
+I0502 21:03:35.315629 11564 layer_factory.cpp:58] Creating layer fire3/relu_expand1x1
+I0502 21:03:35.315629 11564 net.cpp:84] Creating Layer fire3/relu_expand1x1
+I0502 21:03:35.315629 11564 net.cpp:406] fire3/relu_expand1x1 <- fire3/expand1x1
+I0502 21:03:35.315629 11564 net.cpp:367] fire3/relu_expand1x1 -> fire3/expand1x1 (in-place)
+I0502 21:03:35.315629 11564 net.cpp:122] Setting up fire3/relu_expand1x1
+I0502 21:03:35.315629 11564 net.cpp:129] Top shape: 2 64 63 63 (508032)
+I0502 21:03:35.315629 11564 net.cpp:137] Memory required for data: 40442376
+I0502 21:03:35.315629 11564 layer_factory.cpp:58] Creating layer fire3/expand3x3
+I0502 21:03:35.315629 11564 net.cpp:84] Creating Layer fire3/expand3x3
+I0502 21:03:35.315629 11564 net.cpp:406] fire3/expand3x3 <- fire3/squeeze1x1_fire3/relu_squeeze1x1_0_split_1
+I0502 21:03:35.316629 11564 net.cpp:380] fire3/expand3x3 -> fire3/expand3x3
+I0502 21:03:35.316629 11564 net.cpp:122] Setting up fire3/expand3x3
+I0502 21:03:35.316629 11564 net.cpp:129] Top shape: 2 64 63 63 (508032)
+I0502 21:03:35.316629 11564 net.cpp:137] Memory required for data: 42474504
+I0502 21:03:35.316629 11564 layer_factory.cpp:58] Creating layer fire3/relu_expand3x3
+I0502 21:03:35.316629 11564 net.cpp:84] Creating Layer fire3/relu_expand3x3
+I0502 21:03:35.316629 11564 net.cpp:406] fire3/relu_expand3x3 <- fire3/expand3x3
+I0502 21:03:35.316629 11564 net.cpp:367] fire3/relu_expand3x3 -> fire3/expand3x3 (in-place)
+I0502 21:03:35.316629 11564 net.cpp:122] Setting up fire3/relu_expand3x3
+I0502 21:03:35.316629 11564 net.cpp:129] Top shape: 2 64 63 63 (508032)
+I0502 21:03:35.316629 11564 net.cpp:137] Memory required for data: 44506632
+I0502 21:03:35.316629 11564 layer_factory.cpp:58] Creating layer fire3/concat
+I0502 21:03:35.316629 11564 net.cpp:84] Creating Layer fire3/concat
+I0502 21:03:35.316629 11564 net.cpp:406] fire3/concat <- fire3/expand1x1
+I0502 21:03:35.316629 11564 net.cpp:406] fire3/concat <- fire3/expand3x3
+I0502 21:03:35.316629 11564 net.cpp:380] fire3/concat -> fire3/concat
+I0502 21:03:35.316629 11564 net.cpp:122] Setting up fire3/concat
+I0502 21:03:35.317628 11564 net.cpp:129] Top shape: 2 128 63 63 (1016064)
+I0502 21:03:35.317628 11564 net.cpp:137] Memory required for data: 48570888
+I0502 21:03:35.317628 11564 layer_factory.cpp:58] Creating layer pool3
+I0502 21:03:35.317628 11564 net.cpp:84] Creating Layer pool3
+I0502 21:03:35.317628 11564 net.cpp:406] pool3 <- fire3/concat
+I0502 21:03:35.317628 11564 net.cpp:380] pool3 -> pool3
+I0502 21:03:35.317628 11564 net.cpp:122] Setting up pool3
+I0502 21:03:35.317628 11564 net.cpp:129] Top shape: 2 128 31 31 (246016)
+I0502 21:03:35.317628 11564 net.cpp:137] Memory required for data: 49554952
+I0502 21:03:35.317628 11564 layer_factory.cpp:58] Creating layer fire4/squeeze1x1
+I0502 21:03:35.317628 11564 net.cpp:84] Creating Layer fire4/squeeze1x1
+I0502 21:03:35.317628 11564 net.cpp:406] fire4/squeeze1x1 <- pool3
+I0502 21:03:35.317628 11564 net.cpp:380] fire4/squeeze1x1 -> fire4/squeeze1x1
+I0502 21:03:35.317628 11564 net.cpp:122] Setting up fire4/squeeze1x1
+I0502 21:03:35.317628 11564 net.cpp:129] Top shape: 2 32 31 31 (61504)
+I0502 21:03:35.317628 11564 net.cpp:137] Memory required for data: 49800968
+I0502 21:03:35.317628 11564 layer_factory.cpp:58] Creating layer fire4/relu_squeeze1x1
+I0502 21:03:35.317628 11564 net.cpp:84] Creating Layer fire4/relu_squeeze1x1
+I0502 21:03:35.318627 11564 net.cpp:406] fire4/relu_squeeze1x1 <- fire4/squeeze1x1
+I0502 21:03:35.318627 11564 net.cpp:367] fire4/relu_squeeze1x1 -> fire4/squeeze1x1 (in-place)
+I0502 21:03:35.318627 11564 net.cpp:122] Setting up fire4/relu_squeeze1x1
+I0502 21:03:35.318627 11564 net.cpp:129] Top shape: 2 32 31 31 (61504)
+I0502 21:03:35.318627 11564 net.cpp:137] Memory required for data: 50046984
+I0502 21:03:35.318627 11564 layer_factory.cpp:58] Creating layer fire4/squeeze1x1_fire4/relu_squeeze1x1_0_split
+I0502 21:03:35.318627 11564 net.cpp:84] Creating Layer fire4/squeeze1x1_fire4/relu_squeeze1x1_0_split
+I0502 21:03:35.318627 11564 net.cpp:406] fire4/squeeze1x1_fire4/relu_squeeze1x1_0_split <- fire4/squeeze1x1
+I0502 21:03:35.318627 11564 net.cpp:380] fire4/squeeze1x1_fire4/relu_squeeze1x1_0_split -> fire4/squeeze1x1_fire4/relu_squeeze1x1_0_split_0
+I0502 21:03:35.318627 11564 net.cpp:380] fire4/squeeze1x1_fire4/relu_squeeze1x1_0_split -> fire4/squeeze1x1_fire4/relu_squeeze1x1_0_split_1
+I0502 21:03:35.318627 11564 net.cpp:122] Setting up fire4/squeeze1x1_fire4/relu_squeeze1x1_0_split
+I0502 21:03:35.318627 11564 net.cpp:129] Top shape: 2 32 31 31 (61504)
+I0502 21:03:35.318627 11564 net.cpp:129] Top shape: 2 32 31 31 (61504)
+I0502 21:03:35.318627 11564 net.cpp:137] Memory required for data: 50539016
+I0502 21:03:35.318627 11564 layer_factory.cpp:58] Creating layer fire4/expand1x1
+I0502 21:03:35.318627 11564 net.cpp:84] Creating Layer fire4/expand1x1
+I0502 21:03:35.318627 11564 net.cpp:406] fire4/expand1x1 <- fire4/squeeze1x1_fire4/relu_squeeze1x1_0_split_0
+I0502 21:03:35.318627 11564 net.cpp:380] fire4/expand1x1 -> fire4/expand1x1
+I0502 21:03:35.318627 11564 net.cpp:122] Setting up fire4/expand1x1
+I0502 21:03:35.318627 11564 net.cpp:129] Top shape: 2 128 31 31 (246016)
+I0502 21:03:35.318627 11564 net.cpp:137] Memory required for data: 51523080
+I0502 21:03:35.318627 11564 layer_factory.cpp:58] Creating layer fire4/relu_expand1x1
+I0502 21:03:35.318627 11564 net.cpp:84] Creating Layer fire4/relu_expand1x1
+I0502 21:03:35.318627 11564 net.cpp:406] fire4/relu_expand1x1 <- fire4/expand1x1
+I0502 21:03:35.318627 11564 net.cpp:367] fire4/relu_expand1x1 -> fire4/expand1x1 (in-place)
+I0502 21:03:35.318627 11564 net.cpp:122] Setting up fire4/relu_expand1x1
+I0502 21:03:35.318627 11564 net.cpp:129] Top shape: 2 128 31 31 (246016)
+I0502 21:03:35.318627 11564 net.cpp:137] Memory required for data: 52507144
+I0502 21:03:35.318627 11564 layer_factory.cpp:58] Creating layer fire4/expand3x3
+I0502 21:03:35.319627 11564 net.cpp:84] Creating Layer fire4/expand3x3
+I0502 21:03:35.319627 11564 net.cpp:406] fire4/expand3x3 <- fire4/squeeze1x1_fire4/relu_squeeze1x1_0_split_1
+I0502 21:03:35.319627 11564 net.cpp:380] fire4/expand3x3 -> fire4/expand3x3
+I0502 21:03:35.319627 11564 net.cpp:122] Setting up fire4/expand3x3
+I0502 21:03:35.319627 11564 net.cpp:129] Top shape: 2 128 31 31 (246016)
+I0502 21:03:35.319627 11564 net.cpp:137] Memory required for data: 53491208
+I0502 21:03:35.319627 11564 layer_factory.cpp:58] Creating layer fire4/relu_expand3x3
+I0502 21:03:35.319627 11564 net.cpp:84] Creating Layer fire4/relu_expand3x3
+I0502 21:03:35.319627 11564 net.cpp:406] fire4/relu_expand3x3 <- fire4/expand3x3
+I0502 21:03:35.319627 11564 net.cpp:367] fire4/relu_expand3x3 -> fire4/expand3x3 (in-place)
+I0502 21:03:35.319627 11564 net.cpp:122] Setting up fire4/relu_expand3x3
+I0502 21:03:35.319627 11564 net.cpp:129] Top shape: 2 128 31 31 (246016)
+I0502 21:03:35.319627 11564 net.cpp:137] Memory required for data: 54475272
+I0502 21:03:35.320626 11564 layer_factory.cpp:58] Creating layer fire4/concat
+I0502 21:03:35.320626 11564 net.cpp:84] Creating Layer fire4/concat
+I0502 21:03:35.320626 11564 net.cpp:406] fire4/concat <- fire4/expand1x1
+I0502 21:03:35.320626 11564 net.cpp:406] fire4/concat <- fire4/expand3x3
+I0502 21:03:35.320626 11564 net.cpp:380] fire4/concat -> fire4/concat
+I0502 21:03:35.320626 11564 net.cpp:122] Setting up fire4/concat
+I0502 21:03:35.320626 11564 net.cpp:129] Top shape: 2 256 31 31 (492032)
+I0502 21:03:35.320626 11564 net.cpp:137] Memory required for data: 56443400
+I0502 21:03:35.320626 11564 layer_factory.cpp:58] Creating layer fire5/squeeze1x1
+I0502 21:03:35.320626 11564 net.cpp:84] Creating Layer fire5/squeeze1x1
+I0502 21:03:35.320626 11564 net.cpp:406] fire5/squeeze1x1 <- fire4/concat
+I0502 21:03:35.320626 11564 net.cpp:380] fire5/squeeze1x1 -> fire5/squeeze1x1
+I0502 21:03:35.320626 11564 net.cpp:122] Setting up fire5/squeeze1x1
+I0502 21:03:35.320626 11564 net.cpp:129] Top shape: 2 32 31 31 (61504)
+I0502 21:03:35.320626 11564 net.cpp:137] Memory required for data: 56689416
+I0502 21:03:35.320626 11564 layer_factory.cpp:58] Creating layer fire5/relu_squeeze1x1
+I0502 21:03:35.320626 11564 net.cpp:84] Creating Layer fire5/relu_squeeze1x1
+I0502 21:03:35.320626 11564 net.cpp:406] fire5/relu_squeeze1x1 <- fire5/squeeze1x1
+I0502 21:03:35.320626 11564 net.cpp:367] fire5/relu_squeeze1x1 -> fire5/squeeze1x1 (in-place)
+I0502 21:03:35.320626 11564 net.cpp:122] Setting up fire5/relu_squeeze1x1
+I0502 21:03:35.320626 11564 net.cpp:129] Top shape: 2 32 31 31 (61504)
+I0502 21:03:35.320626 11564 net.cpp:137] Memory required for data: 56935432
+I0502 21:03:35.320626 11564 layer_factory.cpp:58] Creating layer fire5/squeeze1x1_fire5/relu_squeeze1x1_0_split
+I0502 21:03:35.320626 11564 net.cpp:84] Creating Layer fire5/squeeze1x1_fire5/relu_squeeze1x1_0_split
+I0502 21:03:35.320626 11564 net.cpp:406] fire5/squeeze1x1_fire5/relu_squeeze1x1_0_split <- fire5/squeeze1x1
+I0502 21:03:35.320626 11564 net.cpp:380] fire5/squeeze1x1_fire5/relu_squeeze1x1_0_split -> fire5/squeeze1x1_fire5/relu_squeeze1x1_0_split_0
+I0502 21:03:35.320626 11564 net.cpp:380] fire5/squeeze1x1_fire5/relu_squeeze1x1_0_split -> fire5/squeeze1x1_fire5/relu_squeeze1x1_0_split_1
+I0502 21:03:35.321625 11564 net.cpp:122] Setting up fire5/squeeze1x1_fire5/relu_squeeze1x1_0_split
+I0502 21:03:35.321625 11564 net.cpp:129] Top shape: 2 32 31 31 (61504)
+I0502 21:03:35.321625 11564 net.cpp:129] Top shape: 2 32 31 31 (61504)
+I0502 21:03:35.321625 11564 net.cpp:137] Memory required for data: 57427464
+I0502 21:03:35.321625 11564 layer_factory.cpp:58] Creating layer fire5/expand1x1
+I0502 21:03:35.321625 11564 net.cpp:84] Creating Layer fire5/expand1x1
+I0502 21:03:35.321625 11564 net.cpp:406] fire5/expand1x1 <- fire5/squeeze1x1_fire5/relu_squeeze1x1_0_split_0
+I0502 21:03:35.321625 11564 net.cpp:380] fire5/expand1x1 -> fire5/expand1x1
+I0502 21:03:35.321625 11564 net.cpp:122] Setting up fire5/expand1x1
+I0502 21:03:35.321625 11564 net.cpp:129] Top shape: 2 128 31 31 (246016)
+I0502 21:03:35.321625 11564 net.cpp:137] Memory required for data: 58411528
+I0502 21:03:35.321625 11564 layer_factory.cpp:58] Creating layer fire5/relu_expand1x1
+I0502 21:03:35.321625 11564 net.cpp:84] Creating Layer fire5/relu_expand1x1
+I0502 21:03:35.321625 11564 net.cpp:406] fire5/relu_expand1x1 <- fire5/expand1x1
+I0502 21:03:35.321625 11564 net.cpp:367] fire5/relu_expand1x1 -> fire5/expand1x1 (in-place)
+I0502 21:03:35.321625 11564 net.cpp:122] Setting up fire5/relu_expand1x1
+I0502 21:03:35.321625 11564 net.cpp:129] Top shape: 2 128 31 31 (246016)
+I0502 21:03:35.321625 11564 net.cpp:137] Memory required for data: 59395592
+I0502 21:03:35.321625 11564 layer_factory.cpp:58] Creating layer fire5/expand3x3
+I0502 21:03:35.321625 11564 net.cpp:84] Creating Layer fire5/expand3x3
+I0502 21:03:35.321625 11564 net.cpp:406] fire5/expand3x3 <- fire5/squeeze1x1_fire5/relu_squeeze1x1_0_split_1
+I0502 21:03:35.321625 11564 net.cpp:380] fire5/expand3x3 -> fire5/expand3x3
+I0502 21:03:35.322624 11564 net.cpp:122] Setting up fire5/expand3x3
+I0502 21:03:35.322624 11564 net.cpp:129] Top shape: 2 128 31 31 (246016)
+I0502 21:03:35.322624 11564 net.cpp:137] Memory required for data: 60379656
+I0502 21:03:35.322624 11564 layer_factory.cpp:58] Creating layer fire5/relu_expand3x3
+I0502 21:03:35.322624 11564 net.cpp:84] Creating Layer fire5/relu_expand3x3
+I0502 21:03:35.322624 11564 net.cpp:406] fire5/relu_expand3x3 <- fire5/expand3x3
+I0502 21:03:35.322624 11564 net.cpp:367] fire5/relu_expand3x3 -> fire5/expand3x3 (in-place)
+I0502 21:03:35.322624 11564 net.cpp:122] Setting up fire5/relu_expand3x3
+I0502 21:03:35.322624 11564 net.cpp:129] Top shape: 2 128 31 31 (246016)
+I0502 21:03:35.322624 11564 net.cpp:137] Memory required for data: 61363720
+I0502 21:03:35.322624 11564 layer_factory.cpp:58] Creating layer fire5/concat
+I0502 21:03:35.322624 11564 net.cpp:84] Creating Layer fire5/concat
+I0502 21:03:35.322624 11564 net.cpp:406] fire5/concat <- fire5/expand1x1
+I0502 21:03:35.322624 11564 net.cpp:406] fire5/concat <- fire5/expand3x3
+I0502 21:03:35.322624 11564 net.cpp:380] fire5/concat -> fire5/concat
+I0502 21:03:35.322624 11564 net.cpp:122] Setting up fire5/concat
+I0502 21:03:35.323624 11564 net.cpp:129] Top shape: 2 256 31 31 (492032)
+I0502 21:03:35.323624 11564 net.cpp:137] Memory required for data: 63331848
+I0502 21:03:35.323624 11564 layer_factory.cpp:58] Creating layer pool5
+I0502 21:03:35.323624 11564 net.cpp:84] Creating Layer pool5
+I0502 21:03:35.323624 11564 net.cpp:406] pool5 <- fire5/concat
+I0502 21:03:35.323624 11564 net.cpp:380] pool5 -> pool5
+I0502 21:03:35.323624 11564 net.cpp:122] Setting up pool5
+I0502 21:03:35.323624 11564 net.cpp:129] Top shape: 2 256 15 15 (115200)
+I0502 21:03:35.323624 11564 net.cpp:137] Memory required for data: 63792648
+I0502 21:03:35.323624 11564 layer_factory.cpp:58] Creating layer fire6/squeeze1x1
+I0502 21:03:35.323624 11564 net.cpp:84] Creating Layer fire6/squeeze1x1
+I0502 21:03:35.323624 11564 net.cpp:406] fire6/squeeze1x1 <- pool5
+I0502 21:03:35.323624 11564 net.cpp:380] fire6/squeeze1x1 -> fire6/squeeze1x1
+I0502 21:03:35.323624 11564 net.cpp:122] Setting up fire6/squeeze1x1
+I0502 21:03:35.323624 11564 net.cpp:129] Top shape: 2 48 15 15 (21600)
+I0502 21:03:35.323624 11564 net.cpp:137] Memory required for data: 63879048
+I0502 21:03:35.323624 11564 layer_factory.cpp:58] Creating layer fire6/relu_squeeze1x1
+I0502 21:03:35.323624 11564 net.cpp:84] Creating Layer fire6/relu_squeeze1x1
+I0502 21:03:35.323624 11564 net.cpp:406] fire6/relu_squeeze1x1 <- fire6/squeeze1x1
+I0502 21:03:35.323624 11564 net.cpp:367] fire6/relu_squeeze1x1 -> fire6/squeeze1x1 (in-place)
+I0502 21:03:35.323624 11564 net.cpp:122] Setting up fire6/relu_squeeze1x1
+I0502 21:03:35.323624 11564 net.cpp:129] Top shape: 2 48 15 15 (21600)
+I0502 21:03:35.323624 11564 net.cpp:137] Memory required for data: 63965448
+I0502 21:03:35.323624 11564 layer_factory.cpp:58] Creating layer fire6/squeeze1x1_fire6/relu_squeeze1x1_0_split
+I0502 21:03:35.324626 11564 net.cpp:84] Creating Layer fire6/squeeze1x1_fire6/relu_squeeze1x1_0_split
+I0502 21:03:35.324626 11564 net.cpp:406] fire6/squeeze1x1_fire6/relu_squeeze1x1_0_split <- fire6/squeeze1x1
+I0502 21:03:35.324626 11564 net.cpp:380] fire6/squeeze1x1_fire6/relu_squeeze1x1_0_split -> fire6/squeeze1x1_fire6/relu_squeeze1x1_0_split_0
+I0502 21:03:35.324626 11564 net.cpp:380] fire6/squeeze1x1_fire6/relu_squeeze1x1_0_split -> fire6/squeeze1x1_fire6/relu_squeeze1x1_0_split_1
+I0502 21:03:35.324626 11564 net.cpp:122] Setting up fire6/squeeze1x1_fire6/relu_squeeze1x1_0_split
+I0502 21:03:35.324626 11564 net.cpp:129] Top shape: 2 48 15 15 (21600)
+I0502 21:03:35.324626 11564 net.cpp:129] Top shape: 2 48 15 15 (21600)
+I0502 21:03:35.324626 11564 net.cpp:137] Memory required for data: 64138248
+I0502 21:03:35.324626 11564 layer_factory.cpp:58] Creating layer fire6/expand1x1
+I0502 21:03:35.324626 11564 net.cpp:84] Creating Layer fire6/expand1x1
+I0502 21:03:35.324626 11564 net.cpp:406] fire6/expand1x1 <- fire6/squeeze1x1_fire6/relu_squeeze1x1_0_split_0
+I0502 21:03:35.324626 11564 net.cpp:380] fire6/expand1x1 -> fire6/expand1x1
+I0502 21:03:35.324626 11564 net.cpp:122] Setting up fire6/expand1x1
+I0502 21:03:35.324626 11564 net.cpp:129] Top shape: 2 192 15 15 (86400)
+I0502 21:03:35.324626 11564 net.cpp:137] Memory required for data: 64483848
+I0502 21:03:35.324626 11564 layer_factory.cpp:58] Creating layer fire6/relu_expand1x1
+I0502 21:03:35.324626 11564 net.cpp:84] Creating Layer fire6/relu_expand1x1
+I0502 21:03:35.324626 11564 net.cpp:406] fire6/relu_expand1x1 <- fire6/expand1x1
+I0502 21:03:35.324626 11564 net.cpp:367] fire6/relu_expand1x1 -> fire6/expand1x1 (in-place)
+I0502 21:03:35.324626 11564 net.cpp:122] Setting up fire6/relu_expand1x1
+I0502 21:03:35.325623 11564 net.cpp:129] Top shape: 2 192 15 15 (86400)
+I0502 21:03:35.325623 11564 net.cpp:137] Memory required for data: 64829448
+I0502 21:03:35.325623 11564 layer_factory.cpp:58] Creating layer fire6/expand3x3
+I0502 21:03:35.325623 11564 net.cpp:84] Creating Layer fire6/expand3x3
+I0502 21:03:35.325623 11564 net.cpp:406] fire6/expand3x3 <- fire6/squeeze1x1_fire6/relu_squeeze1x1_0_split_1
+I0502 21:03:35.325623 11564 net.cpp:380] fire6/expand3x3 -> fire6/expand3x3
+I0502 21:03:35.326622 11564 net.cpp:122] Setting up fire6/expand3x3
+I0502 21:03:35.326622 11564 net.cpp:129] Top shape: 2 192 15 15 (86400)
+I0502 21:03:35.326622 11564 net.cpp:137] Memory required for data: 65175048
+I0502 21:03:35.326622 11564 layer_factory.cpp:58] Creating layer fire6/relu_expand3x3
+I0502 21:03:35.326622 11564 net.cpp:84] Creating Layer fire6/relu_expand3x3
+I0502 21:03:35.326622 11564 net.cpp:406] fire6/relu_expand3x3 <- fire6/expand3x3
+I0502 21:03:35.326622 11564 net.cpp:367] fire6/relu_expand3x3 -> fire6/expand3x3 (in-place)
+I0502 21:03:35.326622 11564 net.cpp:122] Setting up fire6/relu_expand3x3
+I0502 21:03:35.326622 11564 net.cpp:129] Top shape: 2 192 15 15 (86400)
+I0502 21:03:35.326622 11564 net.cpp:137] Memory required for data: 65520648
+I0502 21:03:35.326622 11564 layer_factory.cpp:58] Creating layer fire6/concat
+I0502 21:03:35.326622 11564 net.cpp:84] Creating Layer fire6/concat
+I0502 21:03:35.326622 11564 net.cpp:406] fire6/concat <- fire6/expand1x1
+I0502 21:03:35.326622 11564 net.cpp:406] fire6/concat <- fire6/expand3x3
+I0502 21:03:35.326622 11564 net.cpp:380] fire6/concat -> fire6/concat
+I0502 21:03:35.327621 11564 net.cpp:122] Setting up fire6/concat
+I0502 21:03:35.327621 11564 net.cpp:129] Top shape: 2 384 15 15 (172800)
+I0502 21:03:35.327621 11564 net.cpp:137] Memory required for data: 66211848
+I0502 21:03:35.327621 11564 layer_factory.cpp:58] Creating layer fire7/squeeze1x1
+I0502 21:03:35.327621 11564 net.cpp:84] Creating Layer fire7/squeeze1x1
+I0502 21:03:35.327621 11564 net.cpp:406] fire7/squeeze1x1 <- fire6/concat
+I0502 21:03:35.327621 11564 net.cpp:380] fire7/squeeze1x1 -> fire7/squeeze1x1
+I0502 21:03:35.327621 11564 net.cpp:122] Setting up fire7/squeeze1x1
+I0502 21:03:35.327621 11564 net.cpp:129] Top shape: 2 48 15 15 (21600)
+I0502 21:03:35.327621 11564 net.cpp:137] Memory required for data: 66298248
+I0502 21:03:35.327621 11564 layer_factory.cpp:58] Creating layer fire7/relu_squeeze1x1
+I0502 21:03:35.327621 11564 net.cpp:84] Creating Layer fire7/relu_squeeze1x1
+I0502 21:03:35.327621 11564 net.cpp:406] fire7/relu_squeeze1x1 <- fire7/squeeze1x1
+I0502 21:03:35.327621 11564 net.cpp:367] fire7/relu_squeeze1x1 -> fire7/squeeze1x1 (in-place)
+I0502 21:03:35.327621 11564 net.cpp:122] Setting up fire7/relu_squeeze1x1
+I0502 21:03:35.327621 11564 net.cpp:129] Top shape: 2 48 15 15 (21600)
+I0502 21:03:35.327621 11564 net.cpp:137] Memory required for data: 66384648
+I0502 21:03:35.327621 11564 layer_factory.cpp:58] Creating layer fire7/squeeze1x1_fire7/relu_squeeze1x1_0_split
+I0502 21:03:35.327621 11564 net.cpp:84] Creating Layer fire7/squeeze1x1_fire7/relu_squeeze1x1_0_split
+I0502 21:03:35.327621 11564 net.cpp:406] fire7/squeeze1x1_fire7/relu_squeeze1x1_0_split <- fire7/squeeze1x1
+I0502 21:03:35.327621 11564 net.cpp:380] fire7/squeeze1x1_fire7/relu_squeeze1x1_0_split -> fire7/squeeze1x1_fire7/relu_squeeze1x1_0_split_0
+I0502 21:03:35.327621 11564 net.cpp:380] fire7/squeeze1x1_fire7/relu_squeeze1x1_0_split -> fire7/squeeze1x1_fire7/relu_squeeze1x1_0_split_1
+I0502 21:03:35.327621 11564 net.cpp:122] Setting up fire7/squeeze1x1_fire7/relu_squeeze1x1_0_split
+I0502 21:03:35.328621 11564 net.cpp:129] Top shape: 2 48 15 15 (21600)
+I0502 21:03:35.328621 11564 net.cpp:129] Top shape: 2 48 15 15 (21600)
+I0502 21:03:35.328621 11564 net.cpp:137] Memory required for data: 66557448
+I0502 21:03:35.328621 11564 layer_factory.cpp:58] Creating layer fire7/expand1x1
+I0502 21:03:35.328621 11564 net.cpp:84] Creating Layer fire7/expand1x1
+I0502 21:03:35.328621 11564 net.cpp:406] fire7/expand1x1 <- fire7/squeeze1x1_fire7/relu_squeeze1x1_0_split_0
+I0502 21:03:35.328621 11564 net.cpp:380] fire7/expand1x1 -> fire7/expand1x1
+I0502 21:03:35.328621 11564 net.cpp:122] Setting up fire7/expand1x1
+I0502 21:03:35.328621 11564 net.cpp:129] Top shape: 2 192 15 15 (86400)
+I0502 21:03:35.328621 11564 net.cpp:137] Memory required for data: 66903048
+I0502 21:03:35.328621 11564 layer_factory.cpp:58] Creating layer fire7/relu_expand1x1
+I0502 21:03:35.328621 11564 net.cpp:84] Creating Layer fire7/relu_expand1x1
+I0502 21:03:35.328621 11564 net.cpp:406] fire7/relu_expand1x1 <- fire7/expand1x1
+I0502 21:03:35.328621 11564 net.cpp:367] fire7/relu_expand1x1 -> fire7/expand1x1 (in-place)
+I0502 21:03:35.328621 11564 net.cpp:122] Setting up fire7/relu_expand1x1
+I0502 21:03:35.328621 11564 net.cpp:129] Top shape: 2 192 15 15 (86400)
+I0502 21:03:35.328621 11564 net.cpp:137] Memory required for data: 67248648
+I0502 21:03:35.328621 11564 layer_factory.cpp:58] Creating layer fire7/expand3x3
+I0502 21:03:35.328621 11564 net.cpp:84] Creating Layer fire7/expand3x3
+I0502 21:03:35.328621 11564 net.cpp:406] fire7/expand3x3 <- fire7/squeeze1x1_fire7/relu_squeeze1x1_0_split_1
+I0502 21:03:35.328621 11564 net.cpp:380] fire7/expand3x3 -> fire7/expand3x3
+I0502 21:03:35.329620 11564 net.cpp:122] Setting up fire7/expand3x3
+I0502 21:03:35.329620 11564 net.cpp:129] Top shape: 2 192 15 15 (86400)
+I0502 21:03:35.329620 11564 net.cpp:137] Memory required for data: 67594248
+I0502 21:03:35.329620 11564 layer_factory.cpp:58] Creating layer fire7/relu_expand3x3
+I0502 21:03:35.329620 11564 net.cpp:84] Creating Layer fire7/relu_expand3x3
+I0502 21:03:35.329620 11564 net.cpp:406] fire7/relu_expand3x3 <- fire7/expand3x3
+I0502 21:03:35.329620 11564 net.cpp:367] fire7/relu_expand3x3 -> fire7/expand3x3 (in-place)
+I0502 21:03:35.329620 11564 net.cpp:122] Setting up fire7/relu_expand3x3
+I0502 21:03:35.329620 11564 net.cpp:129] Top shape: 2 192 15 15 (86400)
+I0502 21:03:35.329620 11564 net.cpp:137] Memory required for data: 67939848
+I0502 21:03:35.329620 11564 layer_factory.cpp:58] Creating layer fire7/concat
+I0502 21:03:35.329620 11564 net.cpp:84] Creating Layer fire7/concat
+I0502 21:03:35.329620 11564 net.cpp:406] fire7/concat <- fire7/expand1x1
+I0502 21:03:35.329620 11564 net.cpp:406] fire7/concat <- fire7/expand3x3
+I0502 21:03:35.329620 11564 net.cpp:380] fire7/concat -> fire7/concat
+I0502 21:03:35.329620 11564 net.cpp:122] Setting up fire7/concat
+I0502 21:03:35.329620 11564 net.cpp:129] Top shape: 2 384 15 15 (172800)
+I0502 21:03:35.329620 11564 net.cpp:137] Memory required for data: 68631048
+I0502 21:03:35.329620 11564 layer_factory.cpp:58] Creating layer fire8/squeeze1x1
+I0502 21:03:35.329620 11564 net.cpp:84] Creating Layer fire8/squeeze1x1
+I0502 21:03:35.329620 11564 net.cpp:406] fire8/squeeze1x1 <- fire7/concat
+I0502 21:03:35.329620 11564 net.cpp:380] fire8/squeeze1x1 -> fire8/squeeze1x1
+I0502 21:03:35.330621 11564 net.cpp:122] Setting up fire8/squeeze1x1
+I0502 21:03:35.330621 11564 net.cpp:129] Top shape: 2 64 15 15 (28800)
+I0502 21:03:35.330621 11564 net.cpp:137] Memory required for data: 68746248
+I0502 21:03:35.330621 11564 layer_factory.cpp:58] Creating layer fire8/relu_squeeze1x1
+I0502 21:03:35.330621 11564 net.cpp:84] Creating Layer fire8/relu_squeeze1x1
+I0502 21:03:35.330621 11564 net.cpp:406] fire8/relu_squeeze1x1 <- fire8/squeeze1x1
+I0502 21:03:35.330621 11564 net.cpp:367] fire8/relu_squeeze1x1 -> fire8/squeeze1x1 (in-place)
+I0502 21:03:35.330621 11564 net.cpp:122] Setting up fire8/relu_squeeze1x1
+I0502 21:03:35.330621 11564 net.cpp:129] Top shape: 2 64 15 15 (28800)
+I0502 21:03:35.330621 11564 net.cpp:137] Memory required for data: 68861448
+I0502 21:03:35.330621 11564 layer_factory.cpp:58] Creating layer fire8/squeeze1x1_fire8/relu_squeeze1x1_0_split
+I0502 21:03:35.330621 11564 net.cpp:84] Creating Layer fire8/squeeze1x1_fire8/relu_squeeze1x1_0_split
+I0502 21:03:35.330621 11564 net.cpp:406] fire8/squeeze1x1_fire8/relu_squeeze1x1_0_split <- fire8/squeeze1x1
+I0502 21:03:35.330621 11564 net.cpp:380] fire8/squeeze1x1_fire8/relu_squeeze1x1_0_split -> fire8/squeeze1x1_fire8/relu_squeeze1x1_0_split_0
+I0502 21:03:35.330621 11564 net.cpp:380] fire8/squeeze1x1_fire8/relu_squeeze1x1_0_split -> fire8/squeeze1x1_fire8/relu_squeeze1x1_0_split_1
+I0502 21:03:35.330621 11564 net.cpp:122] Setting up fire8/squeeze1x1_fire8/relu_squeeze1x1_0_split
+I0502 21:03:35.330621 11564 net.cpp:129] Top shape: 2 64 15 15 (28800)
+I0502 21:03:35.330621 11564 net.cpp:129] Top shape: 2 64 15 15 (28800)
+I0502 21:03:35.330621 11564 net.cpp:137] Memory required for data: 69091848
+I0502 21:03:35.330621 11564 layer_factory.cpp:58] Creating layer fire8/expand1x1
+I0502 21:03:35.330621 11564 net.cpp:84] Creating Layer fire8/expand1x1
+I0502 21:03:35.330621 11564 net.cpp:406] fire8/expand1x1 <- fire8/squeeze1x1_fire8/relu_squeeze1x1_0_split_0
+I0502 21:03:35.330621 11564 net.cpp:380] fire8/expand1x1 -> fire8/expand1x1
+I0502 21:03:35.330621 11564 net.cpp:122] Setting up fire8/expand1x1
+I0502 21:03:35.330621 11564 net.cpp:129] Top shape: 2 256 15 15 (115200)
+I0502 21:03:35.330621 11564 net.cpp:137] Memory required for data: 69552648
+I0502 21:03:35.330621 11564 layer_factory.cpp:58] Creating layer fire8/relu_expand1x1
+I0502 21:03:35.330621 11564 net.cpp:84] Creating Layer fire8/relu_expand1x1
+I0502 21:03:35.330621 11564 net.cpp:406] fire8/relu_expand1x1 <- fire8/expand1x1
+I0502 21:03:35.330621 11564 net.cpp:367] fire8/relu_expand1x1 -> fire8/expand1x1 (in-place)
+I0502 21:03:35.330621 11564 net.cpp:122] Setting up fire8/relu_expand1x1
+I0502 21:03:35.330621 11564 net.cpp:129] Top shape: 2 256 15 15 (115200)
+I0502 21:03:35.330621 11564 net.cpp:137] Memory required for data: 70013448
+I0502 21:03:35.330621 11564 layer_factory.cpp:58] Creating layer fire8/expand3x3
+I0502 21:03:35.330621 11564 net.cpp:84] Creating Layer fire8/expand3x3
+I0502 21:03:35.330621 11564 net.cpp:406] fire8/expand3x3 <- fire8/squeeze1x1_fire8/relu_squeeze1x1_0_split_1
+I0502 21:03:35.331619 11564 net.cpp:380] fire8/expand3x3 -> fire8/expand3x3
+I0502 21:03:35.332619 11564 net.cpp:122] Setting up fire8/expand3x3
+I0502 21:03:35.332619 11564 net.cpp:129] Top shape: 2 256 15 15 (115200)
+I0502 21:03:35.332619 11564 net.cpp:137] Memory required for data: 70474248
+I0502 21:03:35.333617 11564 layer_factory.cpp:58] Creating layer fire8/relu_expand3x3
+I0502 21:03:35.333617 11564 net.cpp:84] Creating Layer fire8/relu_expand3x3
+I0502 21:03:35.333617 11564 net.cpp:406] fire8/relu_expand3x3 <- fire8/expand3x3
+I0502 21:03:35.333617 11564 net.cpp:367] fire8/relu_expand3x3 -> fire8/expand3x3 (in-place)
+I0502 21:03:35.333617 11564 net.cpp:122] Setting up fire8/relu_expand3x3
+I0502 21:03:35.333617 11564 net.cpp:129] Top shape: 2 256 15 15 (115200)
+I0502 21:03:35.333617 11564 net.cpp:137] Memory required for data: 70935048
+I0502 21:03:35.333617 11564 layer_factory.cpp:58] Creating layer fire8/concat
+I0502 21:03:35.333617 11564 net.cpp:84] Creating Layer fire8/concat
+I0502 21:03:35.333617 11564 net.cpp:406] fire8/concat <- fire8/expand1x1
+I0502 21:03:35.333617 11564 net.cpp:406] fire8/concat <- fire8/expand3x3
+I0502 21:03:35.333617 11564 net.cpp:380] fire8/concat -> fire8/concat
+I0502 21:03:35.333617 11564 net.cpp:122] Setting up fire8/concat
+I0502 21:03:35.333617 11564 net.cpp:129] Top shape: 2 512 15 15 (230400)
+I0502 21:03:35.333617 11564 net.cpp:137] Memory required for data: 71856648
+I0502 21:03:35.333617 11564 layer_factory.cpp:58] Creating layer fire9/squeeze1x1
+I0502 21:03:35.333617 11564 net.cpp:84] Creating Layer fire9/squeeze1x1
+I0502 21:03:35.333617 11564 net.cpp:406] fire9/squeeze1x1 <- fire8/concat
+I0502 21:03:35.333617 11564 net.cpp:380] fire9/squeeze1x1 -> fire9/squeeze1x1
+I0502 21:03:35.334619 11564 net.cpp:122] Setting up fire9/squeeze1x1
+I0502 21:03:35.334619 11564 net.cpp:129] Top shape: 2 64 15 15 (28800)
+I0502 21:03:35.334619 11564 net.cpp:137] Memory required for data: 71971848
+I0502 21:03:35.334619 11564 layer_factory.cpp:58] Creating layer fire9/relu_squeeze1x1
+I0502 21:03:35.334619 11564 net.cpp:84] Creating Layer fire9/relu_squeeze1x1
+I0502 21:03:35.334619 11564 net.cpp:406] fire9/relu_squeeze1x1 <- fire9/squeeze1x1
+I0502 21:03:35.334619 11564 net.cpp:367] fire9/relu_squeeze1x1 -> fire9/squeeze1x1 (in-place)
+I0502 21:03:35.334619 11564 net.cpp:122] Setting up fire9/relu_squeeze1x1
+I0502 21:03:35.334619 11564 net.cpp:129] Top shape: 2 64 15 15 (28800)
+I0502 21:03:35.334619 11564 net.cpp:137] Memory required for data: 72087048
+I0502 21:03:35.334619 11564 layer_factory.cpp:58] Creating layer fire9/squeeze1x1_fire9/relu_squeeze1x1_0_split
+I0502 21:03:35.334619 11564 net.cpp:84] Creating Layer fire9/squeeze1x1_fire9/relu_squeeze1x1_0_split
+I0502 21:03:35.334619 11564 net.cpp:406] fire9/squeeze1x1_fire9/relu_squeeze1x1_0_split <- fire9/squeeze1x1
+I0502 21:03:35.334619 11564 net.cpp:380] fire9/squeeze1x1_fire9/relu_squeeze1x1_0_split -> fire9/squeeze1x1_fire9/relu_squeeze1x1_0_split_0
+I0502 21:03:35.334619 11564 net.cpp:380] fire9/squeeze1x1_fire9/relu_squeeze1x1_0_split -> fire9/squeeze1x1_fire9/relu_squeeze1x1_0_split_1
+I0502 21:03:35.335618 11564 net.cpp:122] Setting up fire9/squeeze1x1_fire9/relu_squeeze1x1_0_split
+I0502 21:03:35.335618 11564 net.cpp:129] Top shape: 2 64 15 15 (28800)
+I0502 21:03:35.335618 11564 net.cpp:129] Top shape: 2 64 15 15 (28800)
+I0502 21:03:35.335618 11564 net.cpp:137] Memory required for data: 72317448
+I0502 21:03:35.335618 11564 layer_factory.cpp:58] Creating layer fire9/expand1x1
+I0502 21:03:35.335618 11564 net.cpp:84] Creating Layer fire9/expand1x1
+I0502 21:03:35.335618 11564 net.cpp:406] fire9/expand1x1 <- fire9/squeeze1x1_fire9/relu_squeeze1x1_0_split_0
+I0502 21:03:35.335618 11564 net.cpp:380] fire9/expand1x1 -> fire9/expand1x1
+I0502 21:03:35.335618 11564 net.cpp:122] Setting up fire9/expand1x1
+I0502 21:03:35.335618 11564 net.cpp:129] Top shape: 2 256 15 15 (115200)
+I0502 21:03:35.335618 11564 net.cpp:137] Memory required for data: 72778248
+I0502 21:03:35.335618 11564 layer_factory.cpp:58] Creating layer fire9/relu_expand1x1
+I0502 21:03:35.335618 11564 net.cpp:84] Creating Layer fire9/relu_expand1x1
+I0502 21:03:35.335618 11564 net.cpp:406] fire9/relu_expand1x1 <- fire9/expand1x1
+I0502 21:03:35.335618 11564 net.cpp:367] fire9/relu_expand1x1 -> fire9/expand1x1 (in-place)
+I0502 21:03:35.335618 11564 net.cpp:122] Setting up fire9/relu_expand1x1
+I0502 21:03:35.335618 11564 net.cpp:129] Top shape: 2 256 15 15 (115200)
+I0502 21:03:35.335618 11564 net.cpp:137] Memory required for data: 73239048
+I0502 21:03:35.335618 11564 layer_factory.cpp:58] Creating layer fire9/expand3x3
+I0502 21:03:35.335618 11564 net.cpp:84] Creating Layer fire9/expand3x3
+I0502 21:03:35.335618 11564 net.cpp:406] fire9/expand3x3 <- fire9/squeeze1x1_fire9/relu_squeeze1x1_0_split_1
+I0502 21:03:35.335618 11564 net.cpp:380] fire9/expand3x3 -> fire9/expand3x3
+I0502 21:03:35.338614 11564 net.cpp:122] Setting up fire9/expand3x3
+I0502 21:03:35.338614 11564 net.cpp:129] Top shape: 2 256 15 15 (115200)
+I0502 21:03:35.338614 11564 net.cpp:137] Memory required for data: 73699848
+I0502 21:03:35.338614 11564 layer_factory.cpp:58] Creating layer fire9/relu_expand3x3
+I0502 21:03:35.338614 11564 net.cpp:84] Creating Layer fire9/relu_expand3x3
+I0502 21:03:35.338614 11564 net.cpp:406] fire9/relu_expand3x3 <- fire9/expand3x3
+I0502 21:03:35.338614 11564 net.cpp:367] fire9/relu_expand3x3 -> fire9/expand3x3 (in-place)
+I0502 21:03:35.338614 11564 net.cpp:122] Setting up fire9/relu_expand3x3
+I0502 21:03:35.338614 11564 net.cpp:129] Top shape: 2 256 15 15 (115200)
+I0502 21:03:35.338614 11564 net.cpp:137] Memory required for data: 74160648
+I0502 21:03:35.338614 11564 layer_factory.cpp:58] Creating layer fire9/concat
+I0502 21:03:35.338614 11564 net.cpp:84] Creating Layer fire9/concat
+I0502 21:03:35.338614 11564 net.cpp:406] fire9/concat <- fire9/expand1x1
+I0502 21:03:35.338614 11564 net.cpp:406] fire9/concat <- fire9/expand3x3
+I0502 21:03:35.338614 11564 net.cpp:380] fire9/concat -> fire9/concat
+I0502 21:03:35.338614 11564 net.cpp:122] Setting up fire9/concat
+I0502 21:03:35.338614 11564 net.cpp:129] Top shape: 2 512 15 15 (230400)
+I0502 21:03:35.338614 11564 net.cpp:137] Memory required for data: 75082248
+I0502 21:03:35.338614 11564 layer_factory.cpp:58] Creating layer drop9
+I0502 21:03:35.338614 11564 net.cpp:84] Creating Layer drop9
+I0502 21:03:35.338614 11564 net.cpp:406] drop9 <- fire9/concat
+I0502 21:03:35.338614 11564 net.cpp:367] drop9 -> fire9/concat (in-place)
+I0502 21:03:35.338614 11564 net.cpp:122] Setting up drop9
+I0502 21:03:35.338614 11564 net.cpp:129] Top shape: 2 512 15 15 (230400)
+I0502 21:03:35.338614 11564 net.cpp:137] Memory required for data: 76003848
+I0502 21:03:35.338614 11564 layer_factory.cpp:58] Creating layer conv10_new
+I0502 21:03:35.338614 11564 net.cpp:84] Creating Layer conv10_new
+I0502 21:03:35.338614 11564 net.cpp:406] conv10_new <- fire9/concat
+I0502 21:03:35.338614 11564 net.cpp:380] conv10_new -> conv10_new
+I0502 21:03:35.341614 11564 net.cpp:122] Setting up conv10_new
+I0502 21:03:35.341614 11564 net.cpp:129] Top shape: 2 196 15 15 (88200)
+I0502 21:03:35.341614 11564 net.cpp:137] Memory required for data: 76356648
+I0502 21:03:35.341614 11564 layer_factory.cpp:58] Creating layer relu_conv10
+I0502 21:03:35.341614 11564 net.cpp:84] Creating Layer relu_conv10
+I0502 21:03:35.341614 11564 net.cpp:406] relu_conv10 <- conv10_new
+I0502 21:03:35.341614 11564 net.cpp:367] relu_conv10 -> conv10_new (in-place)
+I0502 21:03:35.341614 11564 net.cpp:122] Setting up relu_conv10
+I0502 21:03:35.341614 11564 net.cpp:129] Top shape: 2 196 15 15 (88200)
+I0502 21:03:35.341614 11564 net.cpp:137] Memory required for data: 76709448
+I0502 21:03:35.341614 11564 layer_factory.cpp:58] Creating layer pool10
+I0502 21:03:35.341614 11564 net.cpp:84] Creating Layer pool10
+I0502 21:03:35.341614 11564 net.cpp:406] pool10 <- conv10_new
+I0502 21:03:35.341614 11564 net.cpp:380] pool10 -> pool10
+I0502 21:03:35.341614 11564 net.cpp:122] Setting up pool10
+I0502 21:03:35.341614 11564 net.cpp:129] Top shape: 2 196 1 1 (392)
+I0502 21:03:35.341614 11564 net.cpp:137] Memory required for data: 76711016
+I0502 21:03:35.341614 11564 layer_factory.cpp:58] Creating layer loss
+I0502 21:03:35.341614 11564 net.cpp:84] Creating Layer loss
+I0502 21:03:35.341614 11564 net.cpp:406] loss <- pool10
+I0502 21:03:35.342612 11564 net.cpp:406] loss <- label
+I0502 21:03:35.342612 11564 net.cpp:380] loss -> loss
+I0502 21:03:35.342612 11564 layer_factory.cpp:58] Creating layer loss
+I0502 21:03:35.342612 11564 net.cpp:122] Setting up loss
+I0502 21:03:35.342612 11564 net.cpp:129] Top shape: (1)
+I0502 21:03:35.342612 11564 net.cpp:132]     with loss weight 1
+I0502 21:03:35.342612 11564 net.cpp:137] Memory required for data: 76711020
+I0502 21:03:35.342612 11564 net.cpp:198] loss needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] pool10 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] relu_conv10 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] conv10_new needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] drop9 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire9/concat needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire9/relu_expand3x3 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire9/expand3x3 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire9/relu_expand1x1 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire9/expand1x1 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire9/squeeze1x1_fire9/relu_squeeze1x1_0_split needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire9/relu_squeeze1x1 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire9/squeeze1x1 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire8/concat needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire8/relu_expand3x3 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire8/expand3x3 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire8/relu_expand1x1 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire8/expand1x1 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire8/squeeze1x1_fire8/relu_squeeze1x1_0_split needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire8/relu_squeeze1x1 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire8/squeeze1x1 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire7/concat needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire7/relu_expand3x3 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire7/expand3x3 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire7/relu_expand1x1 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire7/expand1x1 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire7/squeeze1x1_fire7/relu_squeeze1x1_0_split needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire7/relu_squeeze1x1 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire7/squeeze1x1 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire6/concat needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire6/relu_expand3x3 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire6/expand3x3 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire6/relu_expand1x1 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire6/expand1x1 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire6/squeeze1x1_fire6/relu_squeeze1x1_0_split needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire6/relu_squeeze1x1 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire6/squeeze1x1 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] pool5 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire5/concat needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire5/relu_expand3x3 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire5/expand3x3 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire5/relu_expand1x1 needs backward computation.
+I0502 21:03:35.342612 11564 net.cpp:198] fire5/expand1x1 needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] fire5/squeeze1x1_fire5/relu_squeeze1x1_0_split needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] fire5/relu_squeeze1x1 needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] fire5/squeeze1x1 needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] fire4/concat needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] fire4/relu_expand3x3 needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] fire4/expand3x3 needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] fire4/relu_expand1x1 needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] fire4/expand1x1 needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] fire4/squeeze1x1_fire4/relu_squeeze1x1_0_split needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] fire4/relu_squeeze1x1 needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] fire4/squeeze1x1 needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] pool3 needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] fire3/concat needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] fire3/relu_expand3x3 needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] fire3/expand3x3 needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] fire3/relu_expand1x1 needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] fire3/expand1x1 needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] fire3/squeeze1x1_fire3/relu_squeeze1x1_0_split needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] fire3/relu_squeeze1x1 needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] fire3/squeeze1x1 needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] fire2/concat needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] fire2/relu_expand3x3 needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] fire2/expand3x3 needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] fire2/relu_expand1x1 needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] fire2/expand1x1 needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] fire2/squeeze1x1_fire2/relu_squeeze1x1_0_split needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] fire2/relu_squeeze1x1 needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] fire2/squeeze1x1 needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] pool1 needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] relu_conv1 needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:198] conv1 needs backward computation.
+I0502 21:03:35.343611 11564 net.cpp:200] data does not need backward computation.
+I0502 21:03:35.343611 11564 net.cpp:242] This network produces output loss
+I0502 21:03:35.343611 11564 net.cpp:255] Network initialization done.
+I0502 21:03:35.344610 11564 solver.cpp:172] Creating test net (#0) specified by net file: ./lib/finetune.prototxt
+I0502 21:03:35.344610 11564 net.cpp:294] The NetState phase (1) differed from the phase (0) specified by a rule in layer data
+I0502 21:03:35.345610 11564 net.cpp:51] Initializing net from parameters: 
+state {
+  phase: TEST
+}
+layer {
+  name: "data"
+  type: "ImageData"
+  top: "data"
+  top: "label"
+  include {
+    phase: TEST
+  }
+  transform_param {
+    mean_value: 104
+    mean_value: 117
+    mean_value: 123
+  }
+  image_data_param {
+    source: "./dataset_namelist/val.txt"
+    batch_size: 2
+    crop_size: 227
+    mirror: false
+    shuffle: true
+    new_height: 256
+    new_width: 256
+  }
+}
+layer {
+  name: "conv1"
+  type: "Convolution"
+  bottom: "data"
+  top: "conv1"
+  convolution_param {
+    num_output: 64
+    kernel_size: 3
+    stride: 2
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "relu_conv1"
+  type: "ReLU"
+  bottom: "conv1"
+  top: "conv1"
+}
+layer {
+  name: "pool1"
+  type: "Pooling"
+  bottom: "conv1"
+  top: "pool1"
+  pooling_param {
+    pool: MAX
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
+  name: "fire2/squeeze1x1"
+  type: "Convolution"
+  bottom: "pool1"
+  top: "fire2/squeeze1x1"
+  convolution_param {
+    num_output: 16
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire2/relu_squeeze1x1"
+  type: "ReLU"
+  bottom: "fire2/squeeze1x1"
+  top: "fire2/squeeze1x1"
+}
+layer {
+  name: "fire2/expand1x1"
+  type: "Convolution"
+  bottom: "fire2/squeeze1x1"
+  top: "fire2/expand1x1"
+  convolution_param {
+    num_output: 64
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire2/relu_expand1x1"
+  type: "ReLU"
+  bottom: "fire2/expand1x1"
+  top: "fire2/expand1x1"
+}
+layer {
+  name: "fire2/expand3x3"
+  type: "Convolution"
+  bottom: "fire2/squeeze1x1"
+  top: "fire2/expand3x3"
+  convolution_param {
+    num_output: 64
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire2/relu_expand3x3"
+  type: "ReLU"
+  bottom: "fire2/expand3x3"
+  top: "fire2/expand3x3"
+}
+layer {
+  name: "fire2/concat"
+  type: "Concat"
+  bottom: "fire2/expand1x1"
+  bottom: "fire2/expand3x3"
+  top: "fire2/concat"
+}
+layer {
+  name: "fire3/squeeze1x1"
+  type: "Convolution"
+  bottom: "fire2/concat"
+  top: "fire3/squeeze1x1"
+  convolution_param {
+    num_output: 16
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire3/relu_squeeze1x1"
+  type: "ReLU"
+  bottom: "fire3/squeeze1x1"
+  top: "fire3/squeeze1x1"
+}
+layer {
+  name: "fire3/expand1x1"
+  type: "Convolution"
+  bottom: "fire3/squeeze1x1"
+  top: "fire3/expand1x1"
+  convolution_param {
+    num_output: 64
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire3/relu_expand1x1"
+  type: "ReLU"
+  bottom: "fire3/expand1x1"
+  top: "fire3/expand1x1"
+}
+layer {
+  name: "fire3/expand3x3"
+  type: "Convolution"
+  bottom: "fire3/squeeze1x1"
+  top: "fire3/expand3x3"
+  convolution_param {
+    num_output: 64
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire3/relu_expand3x3"
+  type: "ReLU"
+  bottom: "fire3/expand3x3"
+  top: "fire3/expand3x3"
+}
+layer {
+  name: "fire3/concat"
+  type: "Concat"
+  bottom: "fire3/expand1x1"
+  bottom: "fire3/expand3x3"
+  top: "fire3/concat"
+}
+layer {
+  name: "pool3"
+  type: "Pooling"
+  bottom: "fire3/concat"
+  top: "pool3"
+  pooling_param {
+    pool: MAX
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
+  name: "fire4/squeeze1x1"
+  type: "Convolution"
+  bottom: "pool3"
+  top: "fire4/squeeze1x1"
+  convolution_param {
+    num_output: 32
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire4/relu_squeeze1x1"
+  type: "ReLU"
+  bottom: "fire4/squeeze1x1"
+  top: "fire4/squeeze1x1"
+}
+layer {
+  name: "fire4/expand1x1"
+  type: "Convolution"
+  bottom: "fire4/squeeze1x1"
+  top: "fire4/expand1x1"
+  convolution_param {
+    num_output: 128
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire4/relu_expand1x1"
+  type: "ReLU"
+  bottom: "fire4/expand1x1"
+  top: "fire4/expand1x1"
+}
+layer {
+  name: "fire4/expand3x3"
+  type: "Convolution"
+  bottom: "fire4/squeeze1x1"
+  top: "fire4/expand3x3"
+  convolution_param {
+    num_output: 128
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire4/relu_expand3x3"
+  type: "ReLU"
+  bottom: "fire4/expand3x3"
+  top: "fire4/expand3x3"
+}
+layer {
+  name: "fire4/concat"
+  type: "Concat"
+  bottom: "fire4/expand1x1"
+  bottom: "fire4/expand3x3"
+  top: "fire4/concat"
+}
+layer {
+  name: "fire5/squeeze1x1"
+  type: "Convolution"
+  bottom: "fire4/concat"
+  top: "fire5/squeeze1x1"
+  convolution_param {
+    num_output: 32
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire5/relu_squeeze1x1"
+  type: "ReLU"
+  bottom: "fire5/squeeze1x1"
+  top: "fire5/squeeze1x1"
+}
+layer {
+  name: "fire5/expand1x1"
+  type: "Convolution"
+  bottom: "fire5/squeeze1x1"
+  top: "fire5/expand1x1"
+  convolution_param {
+    num_output: 128
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire5/relu_expand1x1"
+  type: "ReLU"
+  bottom: "fire5/expand1x1"
+  top: "fire5/expand1x1"
+}
+layer {
+  name: "fire5/expand3x3"
+  type: "Convolution"
+  bottom: "fire5/squeeze1x1"
+  top: "fire5/expand3x3"
+  convolution_param {
+    num_output: 128
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire5/relu_expand3x3"
+  type: "ReLU"
+  bottom: "fire5/expand3x3"
+  top: "fire5/expand3x3"
+}
+layer {
+  name: "fire5/concat"
+  type: "Concat"
+  bottom: "fire5/expand1x1"
+  bottom: "fire5/expand3x3"
+  top: "fire5/concat"
+}
+layer {
+  name: "pool5"
+  type: "Pooling"
+  bottom: "fire5/concat"
+  top: "pool5"
+  pooling_param {
+    pool: MAX
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
+  name: "fire6/squeeze1x1"
+  type: "Convolution"
+  bottom: "pool5"
+  top: "fire6/squeeze1x1"
+  convolution_param {
+    num_output: 48
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire6/relu_squeeze1x1"
+  type: "ReLU"
+  bottom: "fire6/squeeze1x1"
+  top: "fire6/squeeze1x1"
+}
+layer {
+  name: "fire6/expand1x1"
+  type: "Convolution"
+  bottom: "fire6/squeeze1x1"
+  top: "fire6/expand1x1"
+  convolution_param {
+    num_output: 192
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire6/relu_expand1x1"
+  type: "ReLU"
+  bottom: "fire6/expand1x1"
+  top: "fire6/expand1x1"
+}
+layer {
+  name: "fire6/expand3x3"
+  type: "Convolution"
+  bottom: "fire6/squeeze1x1"
+  top: "fire6/expand3x3"
+  convolution_param {
+    num_output: 192
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire6/relu_expand3x3"
+  type: "ReLU"
+  bottom: "fire6/expand3x3"
+  top: "fire6/expand3x3"
+}
+layer {
+  name: "fire6/concat"
+  type: "Concat"
+  bottom: "fire6/expand1x1"
+  bottom: "fire6/expand3x3"
+  top: "fire6/concat"
+}
+layer {
+  name: "fire7/squeeze1x1"
+  type: "Convolution"
+  bottom: "fire6/concat"
+  top: "fire7/squeeze1x1"
+  convolution_param {
+    num_output: 48
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire7/relu_squeeze1x1"
+  type: "ReLU"
+  bottom: "fire7/squeeze1x1"
+  top: "fire7/squeeze1x1"
+}
+layer {
+  name: "fire7/expand1x1"
+  type: "Convolution"
+  bottom: "fire7/squeeze1x1"
+  top: "fire7/expand1x1"
+  convolution_param {
+    num_output: 192
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire7/relu_expand1x1"
+  type: "ReLU"
+  bottom: "fire7/expand1x1"
+  top: "fire7/expand1x1"
+}
+layer {
+  name: "fire7/expand3x3"
+  type: "Convolution"
+  bottom: "fire7/squeeze1x1"
+  top: "fire7/expand3x3"
+  convolution_param {
+    num_output: 192
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire7/relu_expand3x3"
+  type: "ReLU"
+  bottom: "fire7/expand3x3"
+  top: "fire7/expand3x3"
+}
+layer {
+  name: "fire7/concat"
+  type: "Concat"
+  bottom: "fire7/expand1x1"
+  bottom: "fire7/expand3x3"
+  top: "fire7/concat"
+}
+layer {
+  name: "fire8/squeeze1x1"
+  type: "Convolution"
+  bottom: "fire7/concat"
+  top: "fire8/squeeze1x1"
+  convolution_param {
+    num_output: 64
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire8/relu_squeeze1x1"
+  type: "ReLU"
+  bottom: "fire8/squeeze1x1"
+  top: "fire8/squeeze1x1"
+}
+layer {
+  name: "fire8/expand1x1"
+  type: "Convolution"
+  bottom: "fire8/squeeze1x1"
+  top: "fire8/expand1x1"
+  convolution_param {
+    num_output: 256
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire8/relu_expand1x1"
+  type: "ReLU"
+  bottom: "fire8/expand1x1"
+  top: "fire8/expand1x1"
+}
+layer {
+  name: "fire8/expand3x3"
+  type: "Convolution"
+  bottom: "fire8/squeeze1x1"
+  top: "fire8/expand3x3"
+  convolution_param {
+    num_output: 256
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire8/relu_expand3x3"
+  type: "ReLU"
+  bottom: "fire8/expand3x3"
+  top: "fire8/expand3x3"
+}
+layer {
+  name: "fire8/concat"
+  type: "Concat"
+  bottom: "fire8/expand1x1"
+  bottom: "fire8/expand3x3"
+  top: "fire8/concat"
+}
+layer {
+  name: "fire9/squeeze1x1"
+  type: "Convolution"
+  bottom: "fire8/concat"
+  top: "fire9/squeeze1x1"
+  convolution_param {
+    num_output: 64
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire9/relu_squeeze1x1"
+  type: "ReLU"
+  bottom: "fire9/squeeze1x1"
+  top: "fire9/squeeze1x1"
+}
+layer {
+  name: "fire9/expand1x1"
+  type: "Convolution"
+  bottom: "fire9/squeeze1x1"
+  top: "fire9/expand1x1"
+  convolution_param {
+    num_output: 256
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire9/relu_expand1x1"
+  type: "ReLU"
+  bottom: "fire9/expand1x1"
+  top: "fire9/expand1x1"
+}
+layer {
+  name: "fire9/expand3x3"
+  type: "Convolution"
+  bottom: "fire9/squeeze1x1"
+  top: "fire9/expand3x3"
+  convolution_param {
+    num_output: 256
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire9/relu_expand3x3"
+  type: "ReLU"
+  bottom: "fire9/expand3x3"
+  top: "fire9/expand3x3"
+}
+layer {
+  name: "fire9/concat"
+  type: "Concat"
+  bottom: "fire9/expand1x1"
+  bottom: "fire9/expand3x3"
+  top: "fire9/concat"
+}
+layer {
+  name: "drop9"
+  type: "Dropout"
+  bottom: "fire9/concat"
+  top: "fire9/concat"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+layer {
+  name: "conv10_new"
+  type: "Convolution"
+  bottom: "fire9/concat"
+  top: "conv10_new"
+  convolution_param {
+    num_output: 196
+    kernel_size: 1
+    weight_filler {
+      type: "gaussian"
+      mean: 0
+      std: 0.01
+    }
+  }
+}
+layer {
+  name: "relu_conv10"
+  type: "ReLU"
+  bottom: "conv10_new"
+  top: "conv10_new"
+}
+layer {
+  name: "pool10"
+  type: "Pooling"
+  bottom: "conv10_new"
+  top: "pool10"
+  pooling_param {
+    pool: AVE
+    global_pooling: true
+  }
+}
+layer {
+  name: "loss"
+  type: "SoftmaxWithLoss"
+  bottom: "pool10"
+  bottom: "label"
+  top: "loss"
+}
+layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "pool10"
+  bottom: "label"
+  top: "accuracy"
+  include {
+    phase: TEST
+  }
+}
+layer {
+  name: "accuracy_top5"
+  type: "Accuracy"
+  bottom: "pool10"
+  bottom: "label"
+  top: "accuracy_top5"
+  include {
+    phase: TEST
+  }
+  accuracy_param {
+    top_k: 5
+  }
+}
+I0502 21:03:35.345610 11564 layer_factory.cpp:58] Creating layer data
+I0502 21:03:35.345610 11564 net.cpp:84] Creating Layer data
+I0502 21:03:35.345610 11564 net.cpp:380] data -> data
+I0502 21:03:35.345610 11564 net.cpp:380] data -> label
+I0502 21:03:35.345610 11564 image_data_layer.cpp:38] Opening file ./dataset_namelist/val.txt
+I0502 21:03:35.369594 11564 image_data_layer.cpp:53] Shuffling data
+I0502 21:03:35.369594 11564 image_data_layer.cpp:63] A total of 7958 images.
+I0502 21:03:35.376590 11564 image_data_layer.cpp:90] output data size: 2,3,256,256
+I0502 21:03:35.379591 11564 net.cpp:122] Setting up data
+I0502 21:03:35.379591 11564 net.cpp:129] Top shape: 2 3 256 256 (393216)
+I0502 21:03:35.379591 11564 net.cpp:129] Top shape: 2 (2)
+I0502 21:03:35.379591 11564 net.cpp:137] Memory required for data: 1572872
+I0502 21:03:35.379591 11564 layer_factory.cpp:58] Creating layer label_data_1_split
+I0502 21:03:35.379591 11564 net.cpp:84] Creating Layer label_data_1_split
+I0502 21:03:35.379591 11564 net.cpp:406] label_data_1_split <- label
+I0502 21:03:35.379591 11564 net.cpp:380] label_data_1_split -> label_data_1_split_0
+I0502 21:03:35.379591 11564 net.cpp:380] label_data_1_split -> label_data_1_split_1
+I0502 21:03:35.379591 11564 net.cpp:380] label_data_1_split -> label_data_1_split_2
+I0502 21:03:35.379591 11564 net.cpp:122] Setting up label_data_1_split
+I0502 21:03:35.379591 11564 net.cpp:129] Top shape: 2 (2)
+I0502 21:03:35.379591 11564 net.cpp:129] Top shape: 2 (2)
+I0502 21:03:35.379591 11564 net.cpp:129] Top shape: 2 (2)
+I0502 21:03:35.379591 11564 net.cpp:137] Memory required for data: 1572896
+I0502 21:03:35.379591 11564 layer_factory.cpp:58] Creating layer conv1
+I0502 21:03:35.379591 11564 net.cpp:84] Creating Layer conv1
+I0502 21:03:35.379591 11564 net.cpp:406] conv1 <- data
+I0502 21:03:35.379591 11564 net.cpp:380] conv1 -> conv1
+I0502 21:03:35.380589 11564 net.cpp:122] Setting up conv1
+I0502 21:03:35.380589 11564 net.cpp:129] Top shape: 2 64 127 127 (2064512)
+I0502 21:03:35.380589 11564 net.cpp:137] Memory required for data: 9830944
+I0502 21:03:35.380589 11564 layer_factory.cpp:58] Creating layer relu_conv1
+I0502 21:03:35.380589 11564 net.cpp:84] Creating Layer relu_conv1
+I0502 21:03:35.380589 11564 net.cpp:406] relu_conv1 <- conv1
+I0502 21:03:35.380589 11564 net.cpp:367] relu_conv1 -> conv1 (in-place)
+I0502 21:03:35.380589 11564 net.cpp:122] Setting up relu_conv1
+I0502 21:03:35.380589 11564 net.cpp:129] Top shape: 2 64 127 127 (2064512)
+I0502 21:03:35.380589 11564 net.cpp:137] Memory required for data: 18088992
+I0502 21:03:35.380589 11564 layer_factory.cpp:58] Creating layer pool1
+I0502 21:03:35.380589 11564 net.cpp:84] Creating Layer pool1
+I0502 21:03:35.380589 11564 net.cpp:406] pool1 <- conv1
+I0502 21:03:35.380589 11564 net.cpp:380] pool1 -> pool1
+I0502 21:03:35.380589 11564 net.cpp:122] Setting up pool1
+I0502 21:03:35.380589 11564 net.cpp:129] Top shape: 2 64 63 63 (508032)
+I0502 21:03:35.380589 11564 net.cpp:137] Memory required for data: 20121120
+I0502 21:03:35.380589 11564 layer_factory.cpp:58] Creating layer fire2/squeeze1x1
+I0502 21:03:35.380589 11564 net.cpp:84] Creating Layer fire2/squeeze1x1
+I0502 21:03:35.380589 11564 net.cpp:406] fire2/squeeze1x1 <- pool1
+I0502 21:03:35.380589 11564 net.cpp:380] fire2/squeeze1x1 -> fire2/squeeze1x1
+I0502 21:03:35.380589 11564 net.cpp:122] Setting up fire2/squeeze1x1
+I0502 21:03:35.380589 11564 net.cpp:129] Top shape: 2 16 63 63 (127008)
+I0502 21:03:35.380589 11564 net.cpp:137] Memory required for data: 20629152
+I0502 21:03:35.380589 11564 layer_factory.cpp:58] Creating layer fire2/relu_squeeze1x1
+I0502 21:03:35.380589 11564 net.cpp:84] Creating Layer fire2/relu_squeeze1x1
+I0502 21:03:35.380589 11564 net.cpp:406] fire2/relu_squeeze1x1 <- fire2/squeeze1x1
+I0502 21:03:35.380589 11564 net.cpp:367] fire2/relu_squeeze1x1 -> fire2/squeeze1x1 (in-place)
+I0502 21:03:35.381588 11564 net.cpp:122] Setting up fire2/relu_squeeze1x1
+I0502 21:03:35.381588 11564 net.cpp:129] Top shape: 2 16 63 63 (127008)
+I0502 21:03:35.381588 11564 net.cpp:137] Memory required for data: 21137184
+I0502 21:03:35.381588 11564 layer_factory.cpp:58] Creating layer fire2/squeeze1x1_fire2/relu_squeeze1x1_0_split
+I0502 21:03:35.381588 11564 net.cpp:84] Creating Layer fire2/squeeze1x1_fire2/relu_squeeze1x1_0_split
+I0502 21:03:35.381588 11564 net.cpp:406] fire2/squeeze1x1_fire2/relu_squeeze1x1_0_split <- fire2/squeeze1x1
+I0502 21:03:35.381588 11564 net.cpp:380] fire2/squeeze1x1_fire2/relu_squeeze1x1_0_split -> fire2/squeeze1x1_fire2/relu_squeeze1x1_0_split_0
+I0502 21:03:35.381588 11564 net.cpp:380] fire2/squeeze1x1_fire2/relu_squeeze1x1_0_split -> fire2/squeeze1x1_fire2/relu_squeeze1x1_0_split_1
+I0502 21:03:35.381588 11564 net.cpp:122] Setting up fire2/squeeze1x1_fire2/relu_squeeze1x1_0_split
+I0502 21:03:35.381588 11564 net.cpp:129] Top shape: 2 16 63 63 (127008)
+I0502 21:03:35.381588 11564 net.cpp:129] Top shape: 2 16 63 63 (127008)
+I0502 21:03:35.381588 11564 net.cpp:137] Memory required for data: 22153248
+I0502 21:03:35.381588 11564 layer_factory.cpp:58] Creating layer fire2/expand1x1
+I0502 21:03:35.381588 11564 net.cpp:84] Creating Layer fire2/expand1x1
+I0502 21:03:35.381588 11564 net.cpp:406] fire2/expand1x1 <- fire2/squeeze1x1_fire2/relu_squeeze1x1_0_split_0
+I0502 21:03:35.381588 11564 net.cpp:380] fire2/expand1x1 -> fire2/expand1x1
+I0502 21:03:35.381588 11564 net.cpp:122] Setting up fire2/expand1x1
+I0502 21:03:35.381588 11564 net.cpp:129] Top shape: 2 64 63 63 (508032)
+I0502 21:03:35.381588 11564 net.cpp:137] Memory required for data: 24185376
+I0502 21:03:35.381588 11564 layer_factory.cpp:58] Creating layer fire2/relu_expand1x1
+I0502 21:03:35.381588 11564 net.cpp:84] Creating Layer fire2/relu_expand1x1
+I0502 21:03:35.381588 11564 net.cpp:406] fire2/relu_expand1x1 <- fire2/expand1x1
+I0502 21:03:35.381588 11564 net.cpp:367] fire2/relu_expand1x1 -> fire2/expand1x1 (in-place)
+I0502 21:03:35.381588 11564 net.cpp:122] Setting up fire2/relu_expand1x1
+I0502 21:03:35.381588 11564 net.cpp:129] Top shape: 2 64 63 63 (508032)
+I0502 21:03:35.381588 11564 net.cpp:137] Memory required for data: 26217504
+I0502 21:03:35.381588 11564 layer_factory.cpp:58] Creating layer fire2/expand3x3
+I0502 21:03:35.381588 11564 net.cpp:84] Creating Layer fire2/expand3x3
+I0502 21:03:35.381588 11564 net.cpp:406] fire2/expand3x3 <- fire2/squeeze1x1_fire2/relu_squeeze1x1_0_split_1
+I0502 21:03:35.381588 11564 net.cpp:380] fire2/expand3x3 -> fire2/expand3x3
+I0502 21:03:35.382588 11564 net.cpp:122] Setting up fire2/expand3x3
+I0502 21:03:35.382588 11564 net.cpp:129] Top shape: 2 64 63 63 (508032)
+I0502 21:03:35.382588 11564 net.cpp:137] Memory required for data: 28249632
+I0502 21:03:35.382588 11564 layer_factory.cpp:58] Creating layer fire2/relu_expand3x3
+I0502 21:03:35.382588 11564 net.cpp:84] Creating Layer fire2/relu_expand3x3
+I0502 21:03:35.382588 11564 net.cpp:406] fire2/relu_expand3x3 <- fire2/expand3x3
+I0502 21:03:35.382588 11564 net.cpp:367] fire2/relu_expand3x3 -> fire2/expand3x3 (in-place)
+I0502 21:03:35.382588 11564 net.cpp:122] Setting up fire2/relu_expand3x3
+I0502 21:03:35.382588 11564 net.cpp:129] Top shape: 2 64 63 63 (508032)
+I0502 21:03:35.382588 11564 net.cpp:137] Memory required for data: 30281760
+I0502 21:03:35.382588 11564 layer_factory.cpp:58] Creating layer fire2/concat
+I0502 21:03:35.382588 11564 net.cpp:84] Creating Layer fire2/concat
+I0502 21:03:35.382588 11564 net.cpp:406] fire2/concat <- fire2/expand1x1
+I0502 21:03:35.382588 11564 net.cpp:406] fire2/concat <- fire2/expand3x3
+I0502 21:03:35.382588 11564 net.cpp:380] fire2/concat -> fire2/concat
+I0502 21:03:35.382588 11564 net.cpp:122] Setting up fire2/concat
+I0502 21:03:35.382588 11564 net.cpp:129] Top shape: 2 128 63 63 (1016064)
+I0502 21:03:35.382588 11564 net.cpp:137] Memory required for data: 34346016
+I0502 21:03:35.382588 11564 layer_factory.cpp:58] Creating layer fire3/squeeze1x1
+I0502 21:03:35.382588 11564 net.cpp:84] Creating Layer fire3/squeeze1x1
+I0502 21:03:35.382588 11564 net.cpp:406] fire3/squeeze1x1 <- fire2/concat
+I0502 21:03:35.382588 11564 net.cpp:380] fire3/squeeze1x1 -> fire3/squeeze1x1
+I0502 21:03:35.382588 11564 net.cpp:122] Setting up fire3/squeeze1x1
+I0502 21:03:35.382588 11564 net.cpp:129] Top shape: 2 16 63 63 (127008)
+I0502 21:03:35.382588 11564 net.cpp:137] Memory required for data: 34854048
+I0502 21:03:35.382588 11564 layer_factory.cpp:58] Creating layer fire3/relu_squeeze1x1
+I0502 21:03:35.382588 11564 net.cpp:84] Creating Layer fire3/relu_squeeze1x1
+I0502 21:03:35.383586 11564 net.cpp:406] fire3/relu_squeeze1x1 <- fire3/squeeze1x1
+I0502 21:03:35.383586 11564 net.cpp:367] fire3/relu_squeeze1x1 -> fire3/squeeze1x1 (in-place)
+I0502 21:03:35.383586 11564 net.cpp:122] Setting up fire3/relu_squeeze1x1
+I0502 21:03:35.383586 11564 net.cpp:129] Top shape: 2 16 63 63 (127008)
+I0502 21:03:35.383586 11564 net.cpp:137] Memory required for data: 35362080
+I0502 21:03:35.383586 11564 layer_factory.cpp:58] Creating layer fire3/squeeze1x1_fire3/relu_squeeze1x1_0_split
+I0502 21:03:35.383586 11564 net.cpp:84] Creating Layer fire3/squeeze1x1_fire3/relu_squeeze1x1_0_split
+I0502 21:03:35.383586 11564 net.cpp:406] fire3/squeeze1x1_fire3/relu_squeeze1x1_0_split <- fire3/squeeze1x1
+I0502 21:03:35.383586 11564 net.cpp:380] fire3/squeeze1x1_fire3/relu_squeeze1x1_0_split -> fire3/squeeze1x1_fire3/relu_squeeze1x1_0_split_0
+I0502 21:03:35.383586 11564 net.cpp:380] fire3/squeeze1x1_fire3/relu_squeeze1x1_0_split -> fire3/squeeze1x1_fire3/relu_squeeze1x1_0_split_1
+I0502 21:03:35.383586 11564 net.cpp:122] Setting up fire3/squeeze1x1_fire3/relu_squeeze1x1_0_split
+I0502 21:03:35.383586 11564 net.cpp:129] Top shape: 2 16 63 63 (127008)
+I0502 21:03:35.383586 11564 net.cpp:129] Top shape: 2 16 63 63 (127008)
+I0502 21:03:35.383586 11564 net.cpp:137] Memory required for data: 36378144
+I0502 21:03:35.383586 11564 layer_factory.cpp:58] Creating layer fire3/expand1x1
+I0502 21:03:35.383586 11564 net.cpp:84] Creating Layer fire3/expand1x1
+I0502 21:03:35.383586 11564 net.cpp:406] fire3/expand1x1 <- fire3/squeeze1x1_fire3/relu_squeeze1x1_0_split_0
+I0502 21:03:35.383586 11564 net.cpp:380] fire3/expand1x1 -> fire3/expand1x1
+I0502 21:03:35.383586 11564 net.cpp:122] Setting up fire3/expand1x1
+I0502 21:03:35.383586 11564 net.cpp:129] Top shape: 2 64 63 63 (508032)
+I0502 21:03:35.383586 11564 net.cpp:137] Memory required for data: 38410272
+I0502 21:03:35.383586 11564 layer_factory.cpp:58] Creating layer fire3/relu_expand1x1
+I0502 21:03:35.383586 11564 net.cpp:84] Creating Layer fire3/relu_expand1x1
+I0502 21:03:35.383586 11564 net.cpp:406] fire3/relu_expand1x1 <- fire3/expand1x1
+I0502 21:03:35.383586 11564 net.cpp:367] fire3/relu_expand1x1 -> fire3/expand1x1 (in-place)
+I0502 21:03:35.383586 11564 net.cpp:122] Setting up fire3/relu_expand1x1
+I0502 21:03:35.383586 11564 net.cpp:129] Top shape: 2 64 63 63 (508032)
+I0502 21:03:35.383586 11564 net.cpp:137] Memory required for data: 40442400
+I0502 21:03:35.383586 11564 layer_factory.cpp:58] Creating layer fire3/expand3x3
+I0502 21:03:35.383586 11564 net.cpp:84] Creating Layer fire3/expand3x3
+I0502 21:03:35.383586 11564 net.cpp:406] fire3/expand3x3 <- fire3/squeeze1x1_fire3/relu_squeeze1x1_0_split_1
+I0502 21:03:35.383586 11564 net.cpp:380] fire3/expand3x3 -> fire3/expand3x3
+I0502 21:03:35.384587 11564 net.cpp:122] Setting up fire3/expand3x3
+I0502 21:03:35.384587 11564 net.cpp:129] Top shape: 2 64 63 63 (508032)
+I0502 21:03:35.384587 11564 net.cpp:137] Memory required for data: 42474528
+I0502 21:03:35.384587 11564 layer_factory.cpp:58] Creating layer fire3/relu_expand3x3
+I0502 21:03:35.384587 11564 net.cpp:84] Creating Layer fire3/relu_expand3x3
+I0502 21:03:35.384587 11564 net.cpp:406] fire3/relu_expand3x3 <- fire3/expand3x3
+I0502 21:03:35.384587 11564 net.cpp:367] fire3/relu_expand3x3 -> fire3/expand3x3 (in-place)
+I0502 21:03:35.384587 11564 net.cpp:122] Setting up fire3/relu_expand3x3
+I0502 21:03:35.384587 11564 net.cpp:129] Top shape: 2 64 63 63 (508032)
+I0502 21:03:35.384587 11564 net.cpp:137] Memory required for data: 44506656
+I0502 21:03:35.384587 11564 layer_factory.cpp:58] Creating layer fire3/concat
+I0502 21:03:35.384587 11564 net.cpp:84] Creating Layer fire3/concat
+I0502 21:03:35.384587 11564 net.cpp:406] fire3/concat <- fire3/expand1x1
+I0502 21:03:35.384587 11564 net.cpp:406] fire3/concat <- fire3/expand3x3
+I0502 21:03:35.384587 11564 net.cpp:380] fire3/concat -> fire3/concat
+I0502 21:03:35.384587 11564 net.cpp:122] Setting up fire3/concat
+I0502 21:03:35.384587 11564 net.cpp:129] Top shape: 2 128 63 63 (1016064)
+I0502 21:03:35.384587 11564 net.cpp:137] Memory required for data: 48570912
+I0502 21:03:35.384587 11564 layer_factory.cpp:58] Creating layer pool3
+I0502 21:03:35.384587 11564 net.cpp:84] Creating Layer pool3
+I0502 21:03:35.384587 11564 net.cpp:406] pool3 <- fire3/concat
+I0502 21:03:35.384587 11564 net.cpp:380] pool3 -> pool3
+I0502 21:03:35.384587 11564 net.cpp:122] Setting up pool3
+I0502 21:03:35.384587 11564 net.cpp:129] Top shape: 2 128 31 31 (246016)
+I0502 21:03:35.384587 11564 net.cpp:137] Memory required for data: 49554976
+I0502 21:03:35.384587 11564 layer_factory.cpp:58] Creating layer fire4/squeeze1x1
+I0502 21:03:35.384587 11564 net.cpp:84] Creating Layer fire4/squeeze1x1
+I0502 21:03:35.384587 11564 net.cpp:406] fire4/squeeze1x1 <- pool3
+I0502 21:03:35.384587 11564 net.cpp:380] fire4/squeeze1x1 -> fire4/squeeze1x1
+I0502 21:03:35.384587 11564 net.cpp:122] Setting up fire4/squeeze1x1
+I0502 21:03:35.384587 11564 net.cpp:129] Top shape: 2 32 31 31 (61504)
+I0502 21:03:35.384587 11564 net.cpp:137] Memory required for data: 49800992
+I0502 21:03:35.384587 11564 layer_factory.cpp:58] Creating layer fire4/relu_squeeze1x1
+I0502 21:03:35.384587 11564 net.cpp:84] Creating Layer fire4/relu_squeeze1x1
+I0502 21:03:35.384587 11564 net.cpp:406] fire4/relu_squeeze1x1 <- fire4/squeeze1x1
+I0502 21:03:35.384587 11564 net.cpp:367] fire4/relu_squeeze1x1 -> fire4/squeeze1x1 (in-place)
+I0502 21:03:35.384587 11564 net.cpp:122] Setting up fire4/relu_squeeze1x1
+I0502 21:03:35.384587 11564 net.cpp:129] Top shape: 2 32 31 31 (61504)
+I0502 21:03:35.384587 11564 net.cpp:137] Memory required for data: 50047008
+I0502 21:03:35.384587 11564 layer_factory.cpp:58] Creating layer fire4/squeeze1x1_fire4/relu_squeeze1x1_0_split
+I0502 21:03:35.384587 11564 net.cpp:84] Creating Layer fire4/squeeze1x1_fire4/relu_squeeze1x1_0_split
+I0502 21:03:35.384587 11564 net.cpp:406] fire4/squeeze1x1_fire4/relu_squeeze1x1_0_split <- fire4/squeeze1x1
+I0502 21:03:35.385586 11564 net.cpp:380] fire4/squeeze1x1_fire4/relu_squeeze1x1_0_split -> fire4/squeeze1x1_fire4/relu_squeeze1x1_0_split_0
+I0502 21:03:35.385586 11564 net.cpp:380] fire4/squeeze1x1_fire4/relu_squeeze1x1_0_split -> fire4/squeeze1x1_fire4/relu_squeeze1x1_0_split_1
+I0502 21:03:35.385586 11564 net.cpp:122] Setting up fire4/squeeze1x1_fire4/relu_squeeze1x1_0_split
+I0502 21:03:35.385586 11564 net.cpp:129] Top shape: 2 32 31 31 (61504)
+I0502 21:03:35.385586 11564 net.cpp:129] Top shape: 2 32 31 31 (61504)
+I0502 21:03:35.385586 11564 net.cpp:137] Memory required for data: 50539040
+I0502 21:03:35.385586 11564 layer_factory.cpp:58] Creating layer fire4/expand1x1
+I0502 21:03:35.385586 11564 net.cpp:84] Creating Layer fire4/expand1x1
+I0502 21:03:35.385586 11564 net.cpp:406] fire4/expand1x1 <- fire4/squeeze1x1_fire4/relu_squeeze1x1_0_split_0
+I0502 21:03:35.385586 11564 net.cpp:380] fire4/expand1x1 -> fire4/expand1x1
+I0502 21:03:35.385586 11564 net.cpp:122] Setting up fire4/expand1x1
+I0502 21:03:35.385586 11564 net.cpp:129] Top shape: 2 128 31 31 (246016)
+I0502 21:03:35.385586 11564 net.cpp:137] Memory required for data: 51523104
+I0502 21:03:35.385586 11564 layer_factory.cpp:58] Creating layer fire4/relu_expand1x1
+I0502 21:03:35.385586 11564 net.cpp:84] Creating Layer fire4/relu_expand1x1
+I0502 21:03:35.385586 11564 net.cpp:406] fire4/relu_expand1x1 <- fire4/expand1x1
+I0502 21:03:35.385586 11564 net.cpp:367] fire4/relu_expand1x1 -> fire4/expand1x1 (in-place)
+I0502 21:03:35.385586 11564 net.cpp:122] Setting up fire4/relu_expand1x1
+I0502 21:03:35.385586 11564 net.cpp:129] Top shape: 2 128 31 31 (246016)
+I0502 21:03:35.385586 11564 net.cpp:137] Memory required for data: 52507168
+I0502 21:03:35.385586 11564 layer_factory.cpp:58] Creating layer fire4/expand3x3
+I0502 21:03:35.385586 11564 net.cpp:84] Creating Layer fire4/expand3x3
+I0502 21:03:35.385586 11564 net.cpp:406] fire4/expand3x3 <- fire4/squeeze1x1_fire4/relu_squeeze1x1_0_split_1
+I0502 21:03:35.385586 11564 net.cpp:380] fire4/expand3x3 -> fire4/expand3x3
+I0502 21:03:35.386584 11564 net.cpp:122] Setting up fire4/expand3x3
+I0502 21:03:35.386584 11564 net.cpp:129] Top shape: 2 128 31 31 (246016)
+I0502 21:03:35.386584 11564 net.cpp:137] Memory required for data: 53491232
+I0502 21:03:35.386584 11564 layer_factory.cpp:58] Creating layer fire4/relu_expand3x3
+I0502 21:03:35.386584 11564 net.cpp:84] Creating Layer fire4/relu_expand3x3
+I0502 21:03:35.386584 11564 net.cpp:406] fire4/relu_expand3x3 <- fire4/expand3x3
+I0502 21:03:35.386584 11564 net.cpp:367] fire4/relu_expand3x3 -> fire4/expand3x3 (in-place)
+I0502 21:03:35.386584 11564 net.cpp:122] Setting up fire4/relu_expand3x3
+I0502 21:03:35.386584 11564 net.cpp:129] Top shape: 2 128 31 31 (246016)
+I0502 21:03:35.386584 11564 net.cpp:137] Memory required for data: 54475296
+I0502 21:03:35.386584 11564 layer_factory.cpp:58] Creating layer fire4/concat
+I0502 21:03:35.386584 11564 net.cpp:84] Creating Layer fire4/concat
+I0502 21:03:35.386584 11564 net.cpp:406] fire4/concat <- fire4/expand1x1
+I0502 21:03:35.386584 11564 net.cpp:406] fire4/concat <- fire4/expand3x3
+I0502 21:03:35.387584 11564 net.cpp:380] fire4/concat -> fire4/concat
+I0502 21:03:35.387584 11564 net.cpp:122] Setting up fire4/concat
+I0502 21:03:35.387584 11564 net.cpp:129] Top shape: 2 256 31 31 (492032)
+I0502 21:03:35.387584 11564 net.cpp:137] Memory required for data: 56443424
+I0502 21:03:35.387584 11564 layer_factory.cpp:58] Creating layer fire5/squeeze1x1
+I0502 21:03:35.387584 11564 net.cpp:84] Creating Layer fire5/squeeze1x1
+I0502 21:03:35.387584 11564 net.cpp:406] fire5/squeeze1x1 <- fire4/concat
+I0502 21:03:35.387584 11564 net.cpp:380] fire5/squeeze1x1 -> fire5/squeeze1x1
+I0502 21:03:35.387584 11564 net.cpp:122] Setting up fire5/squeeze1x1
+I0502 21:03:35.387584 11564 net.cpp:129] Top shape: 2 32 31 31 (61504)
+I0502 21:03:35.387584 11564 net.cpp:137] Memory required for data: 56689440
+I0502 21:03:35.387584 11564 layer_factory.cpp:58] Creating layer fire5/relu_squeeze1x1
+I0502 21:03:35.387584 11564 net.cpp:84] Creating Layer fire5/relu_squeeze1x1
+I0502 21:03:35.387584 11564 net.cpp:406] fire5/relu_squeeze1x1 <- fire5/squeeze1x1
+I0502 21:03:35.387584 11564 net.cpp:367] fire5/relu_squeeze1x1 -> fire5/squeeze1x1 (in-place)
+I0502 21:03:35.387584 11564 net.cpp:122] Setting up fire5/relu_squeeze1x1
+I0502 21:03:35.387584 11564 net.cpp:129] Top shape: 2 32 31 31 (61504)
+I0502 21:03:35.387584 11564 net.cpp:137] Memory required for data: 56935456
+I0502 21:03:35.387584 11564 layer_factory.cpp:58] Creating layer fire5/squeeze1x1_fire5/relu_squeeze1x1_0_split
+I0502 21:03:35.387584 11564 net.cpp:84] Creating Layer fire5/squeeze1x1_fire5/relu_squeeze1x1_0_split
+I0502 21:03:35.387584 11564 net.cpp:406] fire5/squeeze1x1_fire5/relu_squeeze1x1_0_split <- fire5/squeeze1x1
+I0502 21:03:35.387584 11564 net.cpp:380] fire5/squeeze1x1_fire5/relu_squeeze1x1_0_split -> fire5/squeeze1x1_fire5/relu_squeeze1x1_0_split_0
+I0502 21:03:35.387584 11564 net.cpp:380] fire5/squeeze1x1_fire5/relu_squeeze1x1_0_split -> fire5/squeeze1x1_fire5/relu_squeeze1x1_0_split_1
+I0502 21:03:35.387584 11564 net.cpp:122] Setting up fire5/squeeze1x1_fire5/relu_squeeze1x1_0_split
+I0502 21:03:35.388586 11564 net.cpp:129] Top shape: 2 32 31 31 (61504)
+I0502 21:03:35.388586 11564 net.cpp:129] Top shape: 2 32 31 31 (61504)
+I0502 21:03:35.388586 11564 net.cpp:137] Memory required for data: 57427488
+I0502 21:03:35.388586 11564 layer_factory.cpp:58] Creating layer fire5/expand1x1
+I0502 21:03:35.388586 11564 net.cpp:84] Creating Layer fire5/expand1x1
+I0502 21:03:35.388586 11564 net.cpp:406] fire5/expand1x1 <- fire5/squeeze1x1_fire5/relu_squeeze1x1_0_split_0
+I0502 21:03:35.388586 11564 net.cpp:380] fire5/expand1x1 -> fire5/expand1x1
+I0502 21:03:35.388586 11564 net.cpp:122] Setting up fire5/expand1x1
+I0502 21:03:35.388586 11564 net.cpp:129] Top shape: 2 128 31 31 (246016)
+I0502 21:03:35.388586 11564 net.cpp:137] Memory required for data: 58411552
+I0502 21:03:35.388586 11564 layer_factory.cpp:58] Creating layer fire5/relu_expand1x1
+I0502 21:03:35.388586 11564 net.cpp:84] Creating Layer fire5/relu_expand1x1
+I0502 21:03:35.388586 11564 net.cpp:406] fire5/relu_expand1x1 <- fire5/expand1x1
+I0502 21:03:35.388586 11564 net.cpp:367] fire5/relu_expand1x1 -> fire5/expand1x1 (in-place)
+I0502 21:03:35.388586 11564 net.cpp:122] Setting up fire5/relu_expand1x1
+I0502 21:03:35.388586 11564 net.cpp:129] Top shape: 2 128 31 31 (246016)
+I0502 21:03:35.388586 11564 net.cpp:137] Memory required for data: 59395616
+I0502 21:03:35.388586 11564 layer_factory.cpp:58] Creating layer fire5/expand3x3
+I0502 21:03:35.388586 11564 net.cpp:84] Creating Layer fire5/expand3x3
+I0502 21:03:35.389585 11564 net.cpp:406] fire5/expand3x3 <- fire5/squeeze1x1_fire5/relu_squeeze1x1_0_split_1
+I0502 21:03:35.389585 11564 net.cpp:380] fire5/expand3x3 -> fire5/expand3x3
+I0502 21:03:35.389585 11564 net.cpp:122] Setting up fire5/expand3x3
+I0502 21:03:35.389585 11564 net.cpp:129] Top shape: 2 128 31 31 (246016)
+I0502 21:03:35.389585 11564 net.cpp:137] Memory required for data: 60379680
+I0502 21:03:35.389585 11564 layer_factory.cpp:58] Creating layer fire5/relu_expand3x3
+I0502 21:03:35.389585 11564 net.cpp:84] Creating Layer fire5/relu_expand3x3
+I0502 21:03:35.389585 11564 net.cpp:406] fire5/relu_expand3x3 <- fire5/expand3x3
+I0502 21:03:35.389585 11564 net.cpp:367] fire5/relu_expand3x3 -> fire5/expand3x3 (in-place)
+I0502 21:03:35.389585 11564 net.cpp:122] Setting up fire5/relu_expand3x3
+I0502 21:03:35.390583 11564 net.cpp:129] Top shape: 2 128 31 31 (246016)
+I0502 21:03:35.390583 11564 net.cpp:137] Memory required for data: 61363744
+I0502 21:03:35.390583 11564 layer_factory.cpp:58] Creating layer fire5/concat
+I0502 21:03:35.390583 11564 net.cpp:84] Creating Layer fire5/concat
+I0502 21:03:35.390583 11564 net.cpp:406] fire5/concat <- fire5/expand1x1
+I0502 21:03:35.390583 11564 net.cpp:406] fire5/concat <- fire5/expand3x3
+I0502 21:03:35.390583 11564 net.cpp:380] fire5/concat -> fire5/concat
+I0502 21:03:35.390583 11564 net.cpp:122] Setting up fire5/concat
+I0502 21:03:35.390583 11564 net.cpp:129] Top shape: 2 256 31 31 (492032)
+I0502 21:03:35.390583 11564 net.cpp:137] Memory required for data: 63331872
+I0502 21:03:35.390583 11564 layer_factory.cpp:58] Creating layer pool5
+I0502 21:03:35.390583 11564 net.cpp:84] Creating Layer pool5
+I0502 21:03:35.390583 11564 net.cpp:406] pool5 <- fire5/concat
+I0502 21:03:35.390583 11564 net.cpp:380] pool5 -> pool5
+I0502 21:03:35.390583 11564 net.cpp:122] Setting up pool5
+I0502 21:03:35.390583 11564 net.cpp:129] Top shape: 2 256 15 15 (115200)
+I0502 21:03:35.390583 11564 net.cpp:137] Memory required for data: 63792672
+I0502 21:03:35.390583 11564 layer_factory.cpp:58] Creating layer fire6/squeeze1x1
+I0502 21:03:35.390583 11564 net.cpp:84] Creating Layer fire6/squeeze1x1
+I0502 21:03:35.390583 11564 net.cpp:406] fire6/squeeze1x1 <- pool5
+I0502 21:03:35.390583 11564 net.cpp:380] fire6/squeeze1x1 -> fire6/squeeze1x1
+I0502 21:03:35.390583 11564 net.cpp:122] Setting up fire6/squeeze1x1
+I0502 21:03:35.390583 11564 net.cpp:129] Top shape: 2 48 15 15 (21600)
+I0502 21:03:35.390583 11564 net.cpp:137] Memory required for data: 63879072
+I0502 21:03:35.390583 11564 layer_factory.cpp:58] Creating layer fire6/relu_squeeze1x1
+I0502 21:03:35.390583 11564 net.cpp:84] Creating Layer fire6/relu_squeeze1x1
+I0502 21:03:35.390583 11564 net.cpp:406] fire6/relu_squeeze1x1 <- fire6/squeeze1x1
+I0502 21:03:35.390583 11564 net.cpp:367] fire6/relu_squeeze1x1 -> fire6/squeeze1x1 (in-place)
+I0502 21:03:35.391582 11564 net.cpp:122] Setting up fire6/relu_squeeze1x1
+I0502 21:03:35.391582 11564 net.cpp:129] Top shape: 2 48 15 15 (21600)
+I0502 21:03:35.391582 11564 net.cpp:137] Memory required for data: 63965472
+I0502 21:03:35.391582 11564 layer_factory.cpp:58] Creating layer fire6/squeeze1x1_fire6/relu_squeeze1x1_0_split
+I0502 21:03:35.391582 11564 net.cpp:84] Creating Layer fire6/squeeze1x1_fire6/relu_squeeze1x1_0_split
+I0502 21:03:35.391582 11564 net.cpp:406] fire6/squeeze1x1_fire6/relu_squeeze1x1_0_split <- fire6/squeeze1x1
+I0502 21:03:35.391582 11564 net.cpp:380] fire6/squeeze1x1_fire6/relu_squeeze1x1_0_split -> fire6/squeeze1x1_fire6/relu_squeeze1x1_0_split_0
+I0502 21:03:35.391582 11564 net.cpp:380] fire6/squeeze1x1_fire6/relu_squeeze1x1_0_split -> fire6/squeeze1x1_fire6/relu_squeeze1x1_0_split_1
+I0502 21:03:35.391582 11564 net.cpp:122] Setting up fire6/squeeze1x1_fire6/relu_squeeze1x1_0_split
+I0502 21:03:35.391582 11564 net.cpp:129] Top shape: 2 48 15 15 (21600)
+I0502 21:03:35.391582 11564 net.cpp:129] Top shape: 2 48 15 15 (21600)
+I0502 21:03:35.391582 11564 net.cpp:137] Memory required for data: 64138272
+I0502 21:03:35.391582 11564 layer_factory.cpp:58] Creating layer fire6/expand1x1
+I0502 21:03:35.391582 11564 net.cpp:84] Creating Layer fire6/expand1x1
+I0502 21:03:35.391582 11564 net.cpp:406] fire6/expand1x1 <- fire6/squeeze1x1_fire6/relu_squeeze1x1_0_split_0
+I0502 21:03:35.391582 11564 net.cpp:380] fire6/expand1x1 -> fire6/expand1x1
+I0502 21:03:35.391582 11564 net.cpp:122] Setting up fire6/expand1x1
+I0502 21:03:35.391582 11564 net.cpp:129] Top shape: 2 192 15 15 (86400)
+I0502 21:03:35.391582 11564 net.cpp:137] Memory required for data: 64483872
+I0502 21:03:35.391582 11564 layer_factory.cpp:58] Creating layer fire6/relu_expand1x1
+I0502 21:03:35.391582 11564 net.cpp:84] Creating Layer fire6/relu_expand1x1
+I0502 21:03:35.391582 11564 net.cpp:406] fire6/relu_expand1x1 <- fire6/expand1x1
+I0502 21:03:35.391582 11564 net.cpp:367] fire6/relu_expand1x1 -> fire6/expand1x1 (in-place)
+I0502 21:03:35.391582 11564 net.cpp:122] Setting up fire6/relu_expand1x1
+I0502 21:03:35.391582 11564 net.cpp:129] Top shape: 2 192 15 15 (86400)
+I0502 21:03:35.391582 11564 net.cpp:137] Memory required for data: 64829472
+I0502 21:03:35.391582 11564 layer_factory.cpp:58] Creating layer fire6/expand3x3
+I0502 21:03:35.392581 11564 net.cpp:84] Creating Layer fire6/expand3x3
+I0502 21:03:35.392581 11564 net.cpp:406] fire6/expand3x3 <- fire6/squeeze1x1_fire6/relu_squeeze1x1_0_split_1
+I0502 21:03:35.392581 11564 net.cpp:380] fire6/expand3x3 -> fire6/expand3x3
+I0502 21:03:35.392581 11564 net.cpp:122] Setting up fire6/expand3x3
+I0502 21:03:35.392581 11564 net.cpp:129] Top shape: 2 192 15 15 (86400)
+I0502 21:03:35.392581 11564 net.cpp:137] Memory required for data: 65175072
+I0502 21:03:35.392581 11564 layer_factory.cpp:58] Creating layer fire6/relu_expand3x3
+I0502 21:03:35.392581 11564 net.cpp:84] Creating Layer fire6/relu_expand3x3
+I0502 21:03:35.392581 11564 net.cpp:406] fire6/relu_expand3x3 <- fire6/expand3x3
+I0502 21:03:35.392581 11564 net.cpp:367] fire6/relu_expand3x3 -> fire6/expand3x3 (in-place)
+I0502 21:03:35.392581 11564 net.cpp:122] Setting up fire6/relu_expand3x3
+I0502 21:03:35.392581 11564 net.cpp:129] Top shape: 2 192 15 15 (86400)
+I0502 21:03:35.393581 11564 net.cpp:137] Memory required for data: 65520672
+I0502 21:03:35.393581 11564 layer_factory.cpp:58] Creating layer fire6/concat
+I0502 21:03:35.393581 11564 net.cpp:84] Creating Layer fire6/concat
+I0502 21:03:35.393581 11564 net.cpp:406] fire6/concat <- fire6/expand1x1
+I0502 21:03:35.393581 11564 net.cpp:406] fire6/concat <- fire6/expand3x3
+I0502 21:03:35.393581 11564 net.cpp:380] fire6/concat -> fire6/concat
+I0502 21:03:35.393581 11564 net.cpp:122] Setting up fire6/concat
+I0502 21:03:35.393581 11564 net.cpp:129] Top shape: 2 384 15 15 (172800)
+I0502 21:03:35.393581 11564 net.cpp:137] Memory required for data: 66211872
+I0502 21:03:35.393581 11564 layer_factory.cpp:58] Creating layer fire7/squeeze1x1
+I0502 21:03:35.393581 11564 net.cpp:84] Creating Layer fire7/squeeze1x1
+I0502 21:03:35.393581 11564 net.cpp:406] fire7/squeeze1x1 <- fire6/concat
+I0502 21:03:35.393581 11564 net.cpp:380] fire7/squeeze1x1 -> fire7/squeeze1x1
+I0502 21:03:35.393581 11564 net.cpp:122] Setting up fire7/squeeze1x1
+I0502 21:03:35.393581 11564 net.cpp:129] Top shape: 2 48 15 15 (21600)
+I0502 21:03:35.393581 11564 net.cpp:137] Memory required for data: 66298272
+I0502 21:03:35.393581 11564 layer_factory.cpp:58] Creating layer fire7/relu_squeeze1x1
+I0502 21:03:35.393581 11564 net.cpp:84] Creating Layer fire7/relu_squeeze1x1
+I0502 21:03:35.393581 11564 net.cpp:406] fire7/relu_squeeze1x1 <- fire7/squeeze1x1
+I0502 21:03:35.393581 11564 net.cpp:367] fire7/relu_squeeze1x1 -> fire7/squeeze1x1 (in-place)
+I0502 21:03:35.393581 11564 net.cpp:122] Setting up fire7/relu_squeeze1x1
+I0502 21:03:35.393581 11564 net.cpp:129] Top shape: 2 48 15 15 (21600)
+I0502 21:03:35.394580 11564 net.cpp:137] Memory required for data: 66384672
+I0502 21:03:35.394580 11564 layer_factory.cpp:58] Creating layer fire7/squeeze1x1_fire7/relu_squeeze1x1_0_split
+I0502 21:03:35.394580 11564 net.cpp:84] Creating Layer fire7/squeeze1x1_fire7/relu_squeeze1x1_0_split
+I0502 21:03:35.394580 11564 net.cpp:406] fire7/squeeze1x1_fire7/relu_squeeze1x1_0_split <- fire7/squeeze1x1
+I0502 21:03:35.394580 11564 net.cpp:380] fire7/squeeze1x1_fire7/relu_squeeze1x1_0_split -> fire7/squeeze1x1_fire7/relu_squeeze1x1_0_split_0
+I0502 21:03:35.394580 11564 net.cpp:380] fire7/squeeze1x1_fire7/relu_squeeze1x1_0_split -> fire7/squeeze1x1_fire7/relu_squeeze1x1_0_split_1
+I0502 21:03:35.394580 11564 net.cpp:122] Setting up fire7/squeeze1x1_fire7/relu_squeeze1x1_0_split
+I0502 21:03:35.394580 11564 net.cpp:129] Top shape: 2 48 15 15 (21600)
+I0502 21:03:35.394580 11564 net.cpp:129] Top shape: 2 48 15 15 (21600)
+I0502 21:03:35.394580 11564 net.cpp:137] Memory required for data: 66557472
+I0502 21:03:35.394580 11564 layer_factory.cpp:58] Creating layer fire7/expand1x1
+I0502 21:03:35.394580 11564 net.cpp:84] Creating Layer fire7/expand1x1
+I0502 21:03:35.394580 11564 net.cpp:406] fire7/expand1x1 <- fire7/squeeze1x1_fire7/relu_squeeze1x1_0_split_0
+I0502 21:03:35.394580 11564 net.cpp:380] fire7/expand1x1 -> fire7/expand1x1
+I0502 21:03:35.394580 11564 net.cpp:122] Setting up fire7/expand1x1
+I0502 21:03:35.394580 11564 net.cpp:129] Top shape: 2 192 15 15 (86400)
+I0502 21:03:35.394580 11564 net.cpp:137] Memory required for data: 66903072
+I0502 21:03:35.394580 11564 layer_factory.cpp:58] Creating layer fire7/relu_expand1x1
+I0502 21:03:35.394580 11564 net.cpp:84] Creating Layer fire7/relu_expand1x1
+I0502 21:03:35.394580 11564 net.cpp:406] fire7/relu_expand1x1 <- fire7/expand1x1
+I0502 21:03:35.395579 11564 net.cpp:367] fire7/relu_expand1x1 -> fire7/expand1x1 (in-place)
+I0502 21:03:35.395579 11564 net.cpp:122] Setting up fire7/relu_expand1x1
+I0502 21:03:35.395579 11564 net.cpp:129] Top shape: 2 192 15 15 (86400)
+I0502 21:03:35.395579 11564 net.cpp:137] Memory required for data: 67248672
+I0502 21:03:35.395579 11564 layer_factory.cpp:58] Creating layer fire7/expand3x3
+I0502 21:03:35.395579 11564 net.cpp:84] Creating Layer fire7/expand3x3
+I0502 21:03:35.395579 11564 net.cpp:406] fire7/expand3x3 <- fire7/squeeze1x1_fire7/relu_squeeze1x1_0_split_1
+I0502 21:03:35.395579 11564 net.cpp:380] fire7/expand3x3 -> fire7/expand3x3
+I0502 21:03:35.395579 11564 net.cpp:122] Setting up fire7/expand3x3
+I0502 21:03:35.395579 11564 net.cpp:129] Top shape: 2 192 15 15 (86400)
+I0502 21:03:35.395579 11564 net.cpp:137] Memory required for data: 67594272
+I0502 21:03:35.396580 11564 layer_factory.cpp:58] Creating layer fire7/relu_expand3x3
+I0502 21:03:35.396580 11564 net.cpp:84] Creating Layer fire7/relu_expand3x3
+I0502 21:03:35.396580 11564 net.cpp:406] fire7/relu_expand3x3 <- fire7/expand3x3
+I0502 21:03:35.396580 11564 net.cpp:367] fire7/relu_expand3x3 -> fire7/expand3x3 (in-place)
+I0502 21:03:35.396580 11564 net.cpp:122] Setting up fire7/relu_expand3x3
+I0502 21:03:35.396580 11564 net.cpp:129] Top shape: 2 192 15 15 (86400)
+I0502 21:03:35.396580 11564 net.cpp:137] Memory required for data: 67939872
+I0502 21:03:35.396580 11564 layer_factory.cpp:58] Creating layer fire7/concat
+I0502 21:03:35.396580 11564 net.cpp:84] Creating Layer fire7/concat
+I0502 21:03:35.396580 11564 net.cpp:406] fire7/concat <- fire7/expand1x1
+I0502 21:03:35.396580 11564 net.cpp:406] fire7/concat <- fire7/expand3x3
+I0502 21:03:35.396580 11564 net.cpp:380] fire7/concat -> fire7/concat
+I0502 21:03:35.396580 11564 net.cpp:122] Setting up fire7/concat
+I0502 21:03:35.396580 11564 net.cpp:129] Top shape: 2 384 15 15 (172800)
+I0502 21:03:35.396580 11564 net.cpp:137] Memory required for data: 68631072
+I0502 21:03:35.396580 11564 layer_factory.cpp:58] Creating layer fire8/squeeze1x1
+I0502 21:03:35.396580 11564 net.cpp:84] Creating Layer fire8/squeeze1x1
+I0502 21:03:35.396580 11564 net.cpp:406] fire8/squeeze1x1 <- fire7/concat
+I0502 21:03:35.396580 11564 net.cpp:380] fire8/squeeze1x1 -> fire8/squeeze1x1
+I0502 21:03:35.396580 11564 net.cpp:122] Setting up fire8/squeeze1x1
+I0502 21:03:35.396580 11564 net.cpp:129] Top shape: 2 64 15 15 (28800)
+I0502 21:03:35.396580 11564 net.cpp:137] Memory required for data: 68746272
+I0502 21:03:35.396580 11564 layer_factory.cpp:58] Creating layer fire8/relu_squeeze1x1
+I0502 21:03:35.396580 11564 net.cpp:84] Creating Layer fire8/relu_squeeze1x1
+I0502 21:03:35.396580 11564 net.cpp:406] fire8/relu_squeeze1x1 <- fire8/squeeze1x1
+I0502 21:03:35.397578 11564 net.cpp:367] fire8/relu_squeeze1x1 -> fire8/squeeze1x1 (in-place)
+I0502 21:03:35.397578 11564 net.cpp:122] Setting up fire8/relu_squeeze1x1
+I0502 21:03:35.397578 11564 net.cpp:129] Top shape: 2 64 15 15 (28800)
+I0502 21:03:35.397578 11564 net.cpp:137] Memory required for data: 68861472
+I0502 21:03:35.397578 11564 layer_factory.cpp:58] Creating layer fire8/squeeze1x1_fire8/relu_squeeze1x1_0_split
+I0502 21:03:35.397578 11564 net.cpp:84] Creating Layer fire8/squeeze1x1_fire8/relu_squeeze1x1_0_split
+I0502 21:03:35.397578 11564 net.cpp:406] fire8/squeeze1x1_fire8/relu_squeeze1x1_0_split <- fire8/squeeze1x1
+I0502 21:03:35.397578 11564 net.cpp:380] fire8/squeeze1x1_fire8/relu_squeeze1x1_0_split -> fire8/squeeze1x1_fire8/relu_squeeze1x1_0_split_0
+I0502 21:03:35.397578 11564 net.cpp:380] fire8/squeeze1x1_fire8/relu_squeeze1x1_0_split -> fire8/squeeze1x1_fire8/relu_squeeze1x1_0_split_1
+I0502 21:03:35.397578 11564 net.cpp:122] Setting up fire8/squeeze1x1_fire8/relu_squeeze1x1_0_split
+I0502 21:03:35.397578 11564 net.cpp:129] Top shape: 2 64 15 15 (28800)
+I0502 21:03:35.397578 11564 net.cpp:129] Top shape: 2 64 15 15 (28800)
+I0502 21:03:35.397578 11564 net.cpp:137] Memory required for data: 69091872
+I0502 21:03:35.397578 11564 layer_factory.cpp:58] Creating layer fire8/expand1x1
+I0502 21:03:35.397578 11564 net.cpp:84] Creating Layer fire8/expand1x1
+I0502 21:03:35.397578 11564 net.cpp:406] fire8/expand1x1 <- fire8/squeeze1x1_fire8/relu_squeeze1x1_0_split_0
+I0502 21:03:35.397578 11564 net.cpp:380] fire8/expand1x1 -> fire8/expand1x1
+I0502 21:03:35.397578 11564 net.cpp:122] Setting up fire8/expand1x1
+I0502 21:03:35.397578 11564 net.cpp:129] Top shape: 2 256 15 15 (115200)
+I0502 21:03:35.397578 11564 net.cpp:137] Memory required for data: 69552672
+I0502 21:03:35.397578 11564 layer_factory.cpp:58] Creating layer fire8/relu_expand1x1
+I0502 21:03:35.397578 11564 net.cpp:84] Creating Layer fire8/relu_expand1x1
+I0502 21:03:35.397578 11564 net.cpp:406] fire8/relu_expand1x1 <- fire8/expand1x1
+I0502 21:03:35.397578 11564 net.cpp:367] fire8/relu_expand1x1 -> fire8/expand1x1 (in-place)
+I0502 21:03:35.397578 11564 net.cpp:122] Setting up fire8/relu_expand1x1
+I0502 21:03:35.397578 11564 net.cpp:129] Top shape: 2 256 15 15 (115200)
+I0502 21:03:35.397578 11564 net.cpp:137] Memory required for data: 70013472
+I0502 21:03:35.397578 11564 layer_factory.cpp:58] Creating layer fire8/expand3x3
+I0502 21:03:35.397578 11564 net.cpp:84] Creating Layer fire8/expand3x3
+I0502 21:03:35.397578 11564 net.cpp:406] fire8/expand3x3 <- fire8/squeeze1x1_fire8/relu_squeeze1x1_0_split_1
+I0502 21:03:35.397578 11564 net.cpp:380] fire8/expand3x3 -> fire8/expand3x3
+I0502 21:03:35.399577 11564 net.cpp:122] Setting up fire8/expand3x3
+I0502 21:03:35.399577 11564 net.cpp:129] Top shape: 2 256 15 15 (115200)
+I0502 21:03:35.399577 11564 net.cpp:137] Memory required for data: 70474272
+I0502 21:03:35.399577 11564 layer_factory.cpp:58] Creating layer fire8/relu_expand3x3
+I0502 21:03:35.399577 11564 net.cpp:84] Creating Layer fire8/relu_expand3x3
+I0502 21:03:35.399577 11564 net.cpp:406] fire8/relu_expand3x3 <- fire8/expand3x3
+I0502 21:03:35.399577 11564 net.cpp:367] fire8/relu_expand3x3 -> fire8/expand3x3 (in-place)
+I0502 21:03:35.399577 11564 net.cpp:122] Setting up fire8/relu_expand3x3
+I0502 21:03:35.399577 11564 net.cpp:129] Top shape: 2 256 15 15 (115200)
+I0502 21:03:35.399577 11564 net.cpp:137] Memory required for data: 70935072
+I0502 21:03:35.399577 11564 layer_factory.cpp:58] Creating layer fire8/concat
+I0502 21:03:35.399577 11564 net.cpp:84] Creating Layer fire8/concat
+I0502 21:03:35.399577 11564 net.cpp:406] fire8/concat <- fire8/expand1x1
+I0502 21:03:35.399577 11564 net.cpp:406] fire8/concat <- fire8/expand3x3
+I0502 21:03:35.399577 11564 net.cpp:380] fire8/concat -> fire8/concat
+I0502 21:03:35.399577 11564 net.cpp:122] Setting up fire8/concat
+I0502 21:03:35.399577 11564 net.cpp:129] Top shape: 2 512 15 15 (230400)
+I0502 21:03:35.399577 11564 net.cpp:137] Memory required for data: 71856672
+I0502 21:03:35.399577 11564 layer_factory.cpp:58] Creating layer fire9/squeeze1x1
+I0502 21:03:35.399577 11564 net.cpp:84] Creating Layer fire9/squeeze1x1
+I0502 21:03:35.399577 11564 net.cpp:406] fire9/squeeze1x1 <- fire8/concat
+I0502 21:03:35.399577 11564 net.cpp:380] fire9/squeeze1x1 -> fire9/squeeze1x1
+I0502 21:03:35.399577 11564 net.cpp:122] Setting up fire9/squeeze1x1
+I0502 21:03:35.399577 11564 net.cpp:129] Top shape: 2 64 15 15 (28800)
+I0502 21:03:35.399577 11564 net.cpp:137] Memory required for data: 71971872
+I0502 21:03:35.399577 11564 layer_factory.cpp:58] Creating layer fire9/relu_squeeze1x1
+I0502 21:03:35.399577 11564 net.cpp:84] Creating Layer fire9/relu_squeeze1x1
+I0502 21:03:35.399577 11564 net.cpp:406] fire9/relu_squeeze1x1 <- fire9/squeeze1x1
+I0502 21:03:35.399577 11564 net.cpp:367] fire9/relu_squeeze1x1 -> fire9/squeeze1x1 (in-place)
+I0502 21:03:35.399577 11564 net.cpp:122] Setting up fire9/relu_squeeze1x1
+I0502 21:03:35.399577 11564 net.cpp:129] Top shape: 2 64 15 15 (28800)
+I0502 21:03:35.399577 11564 net.cpp:137] Memory required for data: 72087072
+I0502 21:03:35.400576 11564 layer_factory.cpp:58] Creating layer fire9/squeeze1x1_fire9/relu_squeeze1x1_0_split
+I0502 21:03:35.400576 11564 net.cpp:84] Creating Layer fire9/squeeze1x1_fire9/relu_squeeze1x1_0_split
+I0502 21:03:35.400576 11564 net.cpp:406] fire9/squeeze1x1_fire9/relu_squeeze1x1_0_split <- fire9/squeeze1x1
+I0502 21:03:35.400576 11564 net.cpp:380] fire9/squeeze1x1_fire9/relu_squeeze1x1_0_split -> fire9/squeeze1x1_fire9/relu_squeeze1x1_0_split_0
+I0502 21:03:35.400576 11564 net.cpp:380] fire9/squeeze1x1_fire9/relu_squeeze1x1_0_split -> fire9/squeeze1x1_fire9/relu_squeeze1x1_0_split_1
+I0502 21:03:35.400576 11564 net.cpp:122] Setting up fire9/squeeze1x1_fire9/relu_squeeze1x1_0_split
+I0502 21:03:35.400576 11564 net.cpp:129] Top shape: 2 64 15 15 (28800)
+I0502 21:03:35.400576 11564 net.cpp:129] Top shape: 2 64 15 15 (28800)
+I0502 21:03:35.400576 11564 net.cpp:137] Memory required for data: 72317472
+I0502 21:03:35.400576 11564 layer_factory.cpp:58] Creating layer fire9/expand1x1
+I0502 21:03:35.400576 11564 net.cpp:84] Creating Layer fire9/expand1x1
+I0502 21:03:35.400576 11564 net.cpp:406] fire9/expand1x1 <- fire9/squeeze1x1_fire9/relu_squeeze1x1_0_split_0
+I0502 21:03:35.400576 11564 net.cpp:380] fire9/expand1x1 -> fire9/expand1x1
+I0502 21:03:35.400576 11564 net.cpp:122] Setting up fire9/expand1x1
+I0502 21:03:35.400576 11564 net.cpp:129] Top shape: 2 256 15 15 (115200)
+I0502 21:03:35.400576 11564 net.cpp:137] Memory required for data: 72778272
+I0502 21:03:35.400576 11564 layer_factory.cpp:58] Creating layer fire9/relu_expand1x1
+I0502 21:03:35.400576 11564 net.cpp:84] Creating Layer fire9/relu_expand1x1
+I0502 21:03:35.400576 11564 net.cpp:406] fire9/relu_expand1x1 <- fire9/expand1x1
+I0502 21:03:35.400576 11564 net.cpp:367] fire9/relu_expand1x1 -> fire9/expand1x1 (in-place)
+I0502 21:03:35.400576 11564 net.cpp:122] Setting up fire9/relu_expand1x1
+I0502 21:03:35.400576 11564 net.cpp:129] Top shape: 2 256 15 15 (115200)
+I0502 21:03:35.400576 11564 net.cpp:137] Memory required for data: 73239072
+I0502 21:03:35.400576 11564 layer_factory.cpp:58] Creating layer fire9/expand3x3
+I0502 21:03:35.400576 11564 net.cpp:84] Creating Layer fire9/expand3x3
+I0502 21:03:35.400576 11564 net.cpp:406] fire9/expand3x3 <- fire9/squeeze1x1_fire9/relu_squeeze1x1_0_split_1
+I0502 21:03:35.400576 11564 net.cpp:380] fire9/expand3x3 -> fire9/expand3x3
+I0502 21:03:35.402575 11564 net.cpp:122] Setting up fire9/expand3x3
+I0502 21:03:35.402575 11564 net.cpp:129] Top shape: 2 256 15 15 (115200)
+I0502 21:03:35.402575 11564 net.cpp:137] Memory required for data: 73699872
+I0502 21:03:35.402575 11564 layer_factory.cpp:58] Creating layer fire9/relu_expand3x3
+I0502 21:03:35.402575 11564 net.cpp:84] Creating Layer fire9/relu_expand3x3
+I0502 21:03:35.402575 11564 net.cpp:406] fire9/relu_expand3x3 <- fire9/expand3x3
+I0502 21:03:35.402575 11564 net.cpp:367] fire9/relu_expand3x3 -> fire9/expand3x3 (in-place)
+I0502 21:03:35.402575 11564 net.cpp:122] Setting up fire9/relu_expand3x3
+I0502 21:03:35.402575 11564 net.cpp:129] Top shape: 2 256 15 15 (115200)
+I0502 21:03:35.402575 11564 net.cpp:137] Memory required for data: 74160672
+I0502 21:03:35.402575 11564 layer_factory.cpp:58] Creating layer fire9/concat
+I0502 21:03:35.402575 11564 net.cpp:84] Creating Layer fire9/concat
+I0502 21:03:35.402575 11564 net.cpp:406] fire9/concat <- fire9/expand1x1
+I0502 21:03:35.402575 11564 net.cpp:406] fire9/concat <- fire9/expand3x3
+I0502 21:03:35.402575 11564 net.cpp:380] fire9/concat -> fire9/concat
+I0502 21:03:35.402575 11564 net.cpp:122] Setting up fire9/concat
+I0502 21:03:35.402575 11564 net.cpp:129] Top shape: 2 512 15 15 (230400)
+I0502 21:03:35.402575 11564 net.cpp:137] Memory required for data: 75082272
+I0502 21:03:35.402575 11564 layer_factory.cpp:58] Creating layer drop9
+I0502 21:03:35.402575 11564 net.cpp:84] Creating Layer drop9
+I0502 21:03:35.402575 11564 net.cpp:406] drop9 <- fire9/concat
+I0502 21:03:35.402575 11564 net.cpp:367] drop9 -> fire9/concat (in-place)
+I0502 21:03:35.402575 11564 net.cpp:122] Setting up drop9
+I0502 21:03:35.402575 11564 net.cpp:129] Top shape: 2 512 15 15 (230400)
+I0502 21:03:35.402575 11564 net.cpp:137] Memory required for data: 76003872
+I0502 21:03:35.402575 11564 layer_factory.cpp:58] Creating layer conv10_new
+I0502 21:03:35.402575 11564 net.cpp:84] Creating Layer conv10_new
+I0502 21:03:35.402575 11564 net.cpp:406] conv10_new <- fire9/concat
+I0502 21:03:35.402575 11564 net.cpp:380] conv10_new -> conv10_new
+I0502 21:03:35.405575 11564 net.cpp:122] Setting up conv10_new
+I0502 21:03:35.405575 11564 net.cpp:129] Top shape: 2 196 15 15 (88200)
+I0502 21:03:35.405575 11564 net.cpp:137] Memory required for data: 76356672
+I0502 21:03:35.405575 11564 layer_factory.cpp:58] Creating layer relu_conv10
+I0502 21:03:35.405575 11564 net.cpp:84] Creating Layer relu_conv10
+I0502 21:03:35.405575 11564 net.cpp:406] relu_conv10 <- conv10_new
+I0502 21:03:35.405575 11564 net.cpp:367] relu_conv10 -> conv10_new (in-place)
+I0502 21:03:35.405575 11564 net.cpp:122] Setting up relu_conv10
+I0502 21:03:35.405575 11564 net.cpp:129] Top shape: 2 196 15 15 (88200)
+I0502 21:03:35.405575 11564 net.cpp:137] Memory required for data: 76709472
+I0502 21:03:35.405575 11564 layer_factory.cpp:58] Creating layer pool10
+I0502 21:03:35.405575 11564 net.cpp:84] Creating Layer pool10
+I0502 21:03:35.405575 11564 net.cpp:406] pool10 <- conv10_new
+I0502 21:03:35.405575 11564 net.cpp:380] pool10 -> pool10
+I0502 21:03:35.405575 11564 net.cpp:122] Setting up pool10
+I0502 21:03:35.405575 11564 net.cpp:129] Top shape: 2 196 1 1 (392)
+I0502 21:03:35.405575 11564 net.cpp:137] Memory required for data: 76711040
+I0502 21:03:35.405575 11564 layer_factory.cpp:58] Creating layer pool10_pool10_0_split
+I0502 21:03:35.405575 11564 net.cpp:84] Creating Layer pool10_pool10_0_split
+I0502 21:03:35.405575 11564 net.cpp:406] pool10_pool10_0_split <- pool10
+I0502 21:03:35.406572 11564 net.cpp:380] pool10_pool10_0_split -> pool10_pool10_0_split_0
+I0502 21:03:35.406572 11564 net.cpp:380] pool10_pool10_0_split -> pool10_pool10_0_split_1
+I0502 21:03:35.406572 11564 net.cpp:380] pool10_pool10_0_split -> pool10_pool10_0_split_2
+I0502 21:03:35.406572 11564 net.cpp:122] Setting up pool10_pool10_0_split
+I0502 21:03:35.406572 11564 net.cpp:129] Top shape: 2 196 1 1 (392)
+I0502 21:03:35.406572 11564 net.cpp:129] Top shape: 2 196 1 1 (392)
+I0502 21:03:35.406572 11564 net.cpp:129] Top shape: 2 196 1 1 (392)
+I0502 21:03:35.406572 11564 net.cpp:137] Memory required for data: 76715744
+I0502 21:03:35.406572 11564 layer_factory.cpp:58] Creating layer loss
+I0502 21:03:35.406572 11564 net.cpp:84] Creating Layer loss
+I0502 21:03:35.406572 11564 net.cpp:406] loss <- pool10_pool10_0_split_0
+I0502 21:03:35.406572 11564 net.cpp:406] loss <- label_data_1_split_0
+I0502 21:03:35.406572 11564 net.cpp:380] loss -> loss
+I0502 21:03:35.406572 11564 layer_factory.cpp:58] Creating layer loss
+I0502 21:03:35.406572 11564 net.cpp:122] Setting up loss
+I0502 21:03:35.406572 11564 net.cpp:129] Top shape: (1)
+I0502 21:03:35.406572 11564 net.cpp:132]     with loss weight 1
+I0502 21:03:35.406572 11564 net.cpp:137] Memory required for data: 76715748
+I0502 21:03:35.406572 11564 layer_factory.cpp:58] Creating layer accuracy
+I0502 21:03:35.406572 11564 net.cpp:84] Creating Layer accuracy
+I0502 21:03:35.406572 11564 net.cpp:406] accuracy <- pool10_pool10_0_split_1
+I0502 21:03:35.406572 11564 net.cpp:406] accuracy <- label_data_1_split_1
+I0502 21:03:35.406572 11564 net.cpp:380] accuracy -> accuracy
+I0502 21:03:35.406572 11564 net.cpp:122] Setting up accuracy
+I0502 21:03:35.406572 11564 net.cpp:129] Top shape: (1)
+I0502 21:03:35.406572 11564 net.cpp:137] Memory required for data: 76715752
+I0502 21:03:35.406572 11564 layer_factory.cpp:58] Creating layer accuracy_top5
+I0502 21:03:35.406572 11564 net.cpp:84] Creating Layer accuracy_top5
+I0502 21:03:35.406572 11564 net.cpp:406] accuracy_top5 <- pool10_pool10_0_split_2
+I0502 21:03:35.406572 11564 net.cpp:406] accuracy_top5 <- label_data_1_split_2
+I0502 21:03:35.406572 11564 net.cpp:380] accuracy_top5 -> accuracy_top5
+I0502 21:03:35.406572 11564 net.cpp:122] Setting up accuracy_top5
+I0502 21:03:35.406572 11564 net.cpp:129] Top shape: (1)
+I0502 21:03:35.406572 11564 net.cpp:137] Memory required for data: 76715756
+I0502 21:03:35.406572 11564 net.cpp:200] accuracy_top5 does not need backward computation.
+I0502 21:03:35.406572 11564 net.cpp:200] accuracy does not need backward computation.
+I0502 21:03:35.406572 11564 net.cpp:198] loss needs backward computation.
+I0502 21:03:35.406572 11564 net.cpp:198] pool10_pool10_0_split needs backward computation.
+I0502 21:03:35.406572 11564 net.cpp:198] pool10 needs backward computation.
+I0502 21:03:35.406572 11564 net.cpp:198] relu_conv10 needs backward computation.
+I0502 21:03:35.406572 11564 net.cpp:198] conv10_new needs backward computation.
+I0502 21:03:35.406572 11564 net.cpp:198] drop9 needs backward computation.
+I0502 21:03:35.406572 11564 net.cpp:198] fire9/concat needs backward computation.
+I0502 21:03:35.406572 11564 net.cpp:198] fire9/relu_expand3x3 needs backward computation.
+I0502 21:03:35.406572 11564 net.cpp:198] fire9/expand3x3 needs backward computation.
+I0502 21:03:35.406572 11564 net.cpp:198] fire9/relu_expand1x1 needs backward computation.
+I0502 21:03:35.406572 11564 net.cpp:198] fire9/expand1x1 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire9/squeeze1x1_fire9/relu_squeeze1x1_0_split needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire9/relu_squeeze1x1 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire9/squeeze1x1 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire8/concat needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire8/relu_expand3x3 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire8/expand3x3 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire8/relu_expand1x1 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire8/expand1x1 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire8/squeeze1x1_fire8/relu_squeeze1x1_0_split needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire8/relu_squeeze1x1 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire8/squeeze1x1 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire7/concat needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire7/relu_expand3x3 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire7/expand3x3 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire7/relu_expand1x1 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire7/expand1x1 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire7/squeeze1x1_fire7/relu_squeeze1x1_0_split needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire7/relu_squeeze1x1 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire7/squeeze1x1 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire6/concat needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire6/relu_expand3x3 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire6/expand3x3 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire6/relu_expand1x1 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire6/expand1x1 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire6/squeeze1x1_fire6/relu_squeeze1x1_0_split needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire6/relu_squeeze1x1 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire6/squeeze1x1 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] pool5 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire5/concat needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire5/relu_expand3x3 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire5/expand3x3 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire5/relu_expand1x1 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire5/expand1x1 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire5/squeeze1x1_fire5/relu_squeeze1x1_0_split needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire5/relu_squeeze1x1 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire5/squeeze1x1 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire4/concat needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire4/relu_expand3x3 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire4/expand3x3 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire4/relu_expand1x1 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire4/expand1x1 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire4/squeeze1x1_fire4/relu_squeeze1x1_0_split needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire4/relu_squeeze1x1 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire4/squeeze1x1 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] pool3 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire3/concat needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire3/relu_expand3x3 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire3/expand3x3 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire3/relu_expand1x1 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire3/expand1x1 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire3/squeeze1x1_fire3/relu_squeeze1x1_0_split needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire3/relu_squeeze1x1 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire3/squeeze1x1 needs backward computation.
+I0502 21:03:35.407572 11564 net.cpp:198] fire2/concat needs backward computation.
+I0502 21:03:35.408571 11564 net.cpp:198] fire2/relu_expand3x3 needs backward computation.
+I0502 21:03:35.408571 11564 net.cpp:198] fire2/expand3x3 needs backward computation.
+I0502 21:03:35.408571 11564 net.cpp:198] fire2/relu_expand1x1 needs backward computation.
+I0502 21:03:35.408571 11564 net.cpp:198] fire2/expand1x1 needs backward computation.
+I0502 21:03:35.408571 11564 net.cpp:198] fire2/squeeze1x1_fire2/relu_squeeze1x1_0_split needs backward computation.
+I0502 21:03:35.408571 11564 net.cpp:198] fire2/relu_squeeze1x1 needs backward computation.
+I0502 21:03:35.408571 11564 net.cpp:198] fire2/squeeze1x1 needs backward computation.
+I0502 21:03:35.408571 11564 net.cpp:198] pool1 needs backward computation.
+I0502 21:03:35.408571 11564 net.cpp:198] relu_conv1 needs backward computation.
+I0502 21:03:35.408571 11564 net.cpp:198] conv1 needs backward computation.
+I0502 21:03:35.408571 11564 net.cpp:200] label_data_1_split does not need backward computation.
+I0502 21:03:35.408571 11564 net.cpp:200] data does not need backward computation.
+I0502 21:03:35.408571 11564 net.cpp:242] This network produces output accuracy
+I0502 21:03:35.408571 11564 net.cpp:242] This network produces output accuracy_top5
+I0502 21:03:35.408571 11564 net.cpp:242] This network produces output loss
+I0502 21:03:35.408571 11564 net.cpp:255] Network initialization done.
+I0502 21:03:35.408571 11564 solver.cpp:56] Solver scaffolding done.
+I0502 21:03:35.408571 11564 caffe.cpp:155] Finetuning from ./ImageNet_pretrained_model/squeezenet_v1.1.caffemodel
+I0502 21:03:35.416566 11564 net.cpp:744] Ignoring source layer label_data_1_split
+I0502 21:03:35.417567 11564 net.cpp:744] Ignoring source layer conv10
+I0502 21:03:35.417567 11564 net.cpp:744] Ignoring source layer pool10_pool10_0_split
+I0502 21:03:35.417567 11564 net.cpp:744] Ignoring source layer accuracy
+I0502 21:03:35.417567 11564 net.cpp:744] Ignoring source layer accuracy_top5
+I0502 21:03:35.426560 11564 net.cpp:744] Ignoring source layer conv10
+I0502 21:03:35.427561 11564 caffe.cpp:249] Starting Optimization
+I0502 21:03:35.427561 11564 solver.cpp:272] Solving 
+I0502 21:03:35.427561 11564 solver.cpp:273] Learning Rate Policy: step
+I0502 21:03:35.714381 11564 solver.cpp:218] Iteration 0 (0 iter/s, 0.286s/2 iters), loss = 5.69389
+I0502 21:03:35.714381 11564 solver.cpp:237]     Train net output #0: loss = 5.69389 (* 1 = 5.69389 loss)
+I0502 21:03:35.714381 11564 sgd_solver.cpp:105] Iteration 0, lr = 0.001
+I0502 21:03:36.148113 11564 solver.cpp:218] Iteration 2 (4.61894 iter/s, 0.433s/2 iters), loss = 5.43948
+I0502 21:03:36.148113 11564 solver.cpp:237]     Train net output #0: loss = 5.08871 (* 1 = 5.08871 loss)
+I0502 21:03:36.148113 11564 sgd_solver.cpp:105] Iteration 2, lr = 0.001
+I0502 21:03:36.669790 11564 solver.cpp:218] Iteration 4 (3.83877 iter/s, 0.521s/2 iters), loss = 5.27238
+I0502 21:03:36.669790 11564 solver.cpp:237]     Train net output #0: loss = 4.46183 (* 1 = 4.46183 loss)
+I0502 21:03:36.669790 11564 sgd_solver.cpp:105] Iteration 4, lr = 0.001
+I0502 21:03:37.101523 11564 solver.cpp:218] Iteration 6 (4.64037 iter/s, 0.431s/2 iters), loss = 4.7589
+I0502 21:03:37.101523 11564 solver.cpp:237]     Train net output #0: loss = 2.293 (* 1 = 2.293 loss)
+I0502 21:03:37.101523 11564 sgd_solver.cpp:105] Iteration 6, lr = 0.001
+I0502 21:03:37.529258 11564 solver.cpp:218] Iteration 8 (4.68384 iter/s, 0.427s/2 iters), loss = 4.44896
+I0502 21:03:37.529258 11564 solver.cpp:237]     Train net output #0: loss = 6.39255 (* 1 = 6.39255 loss)
+I0502 21:03:37.529258 11564 sgd_solver.cpp:105] Iteration 8, lr = 0.001
+I0502 21:03:37.971982 11564 solver.cpp:218] Iteration 10 (4.52489 iter/s, 0.442s/2 iters), loss = 4.89516
+I0502 21:03:37.971982 11564 solver.cpp:237]     Train net output #0: loss = 4.65418 (* 1 = 4.65418 loss)
+I0502 21:03:37.971982 11564 sgd_solver.cpp:105] Iteration 10, lr = 0.001
+I0502 21:03:38.411710 11564 solver.cpp:218] Iteration 12 (4.55581 iter/s, 0.439s/2 iters), loss = 4.86584
+I0502 21:03:38.411710 11564 solver.cpp:237]     Train net output #0: loss = 4.66148 (* 1 = 4.66148 loss)
+I0502 21:03:38.411710 11564 sgd_solver.cpp:105] Iteration 12, lr = 0.001
+I0502 21:03:38.820457 11564 solver.cpp:218] Iteration 14 (4.90196 iter/s, 0.408s/2 iters), loss = 4.7668
+I0502 21:03:38.821456 11564 solver.cpp:237]     Train net output #0: loss = 4.14733 (* 1 = 4.14733 loss)
+I0502 21:03:38.821456 11564 sgd_solver.cpp:105] Iteration 14, lr = 0.001
+I0502 21:03:39.236199 11564 solver.cpp:218] Iteration 16 (4.83092 iter/s, 0.414s/2 iters), loss = 4.64865
+I0502 21:03:39.236199 11564 solver.cpp:237]     Train net output #0: loss = 3.42249 (* 1 = 3.42249 loss)
+I0502 21:03:39.236199 11564 sgd_solver.cpp:105] Iteration 16, lr = 0.001
+I0502 21:03:39.646945 11564 solver.cpp:218] Iteration 18 (4.87805 iter/s, 0.41s/2 iters), loss = 4.64427
+I0502 21:03:39.646945 11564 solver.cpp:237]     Train net output #0: loss = 3.55706 (* 1 = 3.55706 loss)
+I0502 21:03:39.646945 11564 sgd_solver.cpp:105] Iteration 18, lr = 0.001
+I0502 21:03:40.083674 11564 solver.cpp:218] Iteration 20 (4.58716 iter/s, 0.436s/2 iters), loss = 4.40134
+I0502 21:03:40.083674 11564 solver.cpp:237]     Train net output #0: loss = 2.26665 (* 1 = 2.26665 loss)
+I0502 21:03:40.083674 11564 sgd_solver.cpp:105] Iteration 20, lr = 0.001
+I0502 21:03:40.501415 11564 solver.cpp:218] Iteration 22 (4.79616 iter/s, 0.417s/2 iters), loss = 4.3437
+I0502 21:03:40.501415 11564 solver.cpp:237]     Train net output #0: loss = 4.50118 (* 1 = 4.50118 loss)
+I0502 21:03:40.501415 11564 sgd_solver.cpp:105] Iteration 22, lr = 0.001
+I0502 21:03:40.892172 11564 solver.cpp:218] Iteration 24 (5.12821 iter/s, 0.39s/2 iters), loss = 4.11762
+I0502 21:03:40.892172 11564 solver.cpp:237]     Train net output #0: loss = 3.57579 (* 1 = 3.57579 loss)
+I0502 21:03:40.892172 11564 sgd_solver.cpp:105] Iteration 24, lr = 0.001
+I0502 21:03:41.319907 11564 solver.cpp:218] Iteration 26 (4.68384 iter/s, 0.427s/2 iters), loss = 4.15056
+I0502 21:03:41.319907 11564 solver.cpp:237]     Train net output #0: loss = 4.6335 (* 1 = 4.6335 loss)
+I0502 21:03:41.319907 11564 sgd_solver.cpp:105] Iteration 26, lr = 0.001

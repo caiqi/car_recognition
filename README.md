@@ -1,7 +1,6 @@
 ## install
 * python: Anaconda 3.5 + PyQt5
-* caffe: caffe from [caffe-py3.5-windows-cpu](https://ci.appveyor.com/api/projects/BVLC/caffe/artifacts/build/caffe.zip?branch=windows&job=Environment%3A%20MSVC_VERSION%3D14%2C%20WITH_NINJA%3D0%2C%20CMAKE_CONFIG%3DRelease%2C%20CMAKE_BUILD_SHARED_LIBS%3D0%2C%20PYTHON_VERSION%3D3%2C%20WITH_CUDA%3D0)
-
+* caffe: caffe from [caffe-py3.5-windows-cpu](https://ci.appveyor.com/api/projects/BVLC/caffe/artifacts/build/caffe.zip?branch=windows&job=Environment%3A%20MSVC_VERSION%3D14%2C%20WITH_NINJA%3D0%2C%20CMAKE_CONFIG%3DRelease%2C%20CMAKE_BUILD_SHARED_LIBS%3D0%2C%20PYTHON_VERSION%3D3%2C%20WITH_CUDA%3D0) 放在./caffe里面。结构是./caffe/bin/caffe.exe 和./caffe/python
 ## train
 python main.py 启动主界面
 
